@@ -1,0 +1,8 @@
+<h2>Register</h2>
+<form (ngSubmit)="register()">
+  <input [(ngModel)]="email" name="email" placeholder="Email" required>
+  <input [(ngModel)]="password" name="password" type="password" placeholder="Password" required>
+  <button type="submit">Register</button>
+</form>
+<p *ngIf="error" style="color:red">{{error}}</p>
+<a routerLink="/">Back to Login</a>
