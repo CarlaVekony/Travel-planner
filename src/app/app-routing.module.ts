@@ -7,7 +7,7 @@ import { Itineraries } from './pages/itineraries/itineraries';
 import { Activities } from './pages/activities/activities';
 import { AuthGuard } from './services/auth.guard';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', component: Home},
   { path: 'login', component: Login },
   { path: 'register', component: Register },
