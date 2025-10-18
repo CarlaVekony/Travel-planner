@@ -1,0 +1,8 @@
+<div class="activities-container">
+  <h2>Activities for Itinerary {{ itineraryId }}</h2>
+  <ul>
+    <li *ngFor="let activity of activities">
+      {{ activity.name }} - {{ activity.location }} - {{ activity.startTime }}
+    </li>
+  </ul>
+</div>

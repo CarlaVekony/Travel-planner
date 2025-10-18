@@ -1,36 +1,39 @@
-
-
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Api } from '../../services/api';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrls: ['./login.css']
 })
 export class Login {
-  username = '';
-  password = '';
-  loginError = '';
-  loading = false;
+  email: string = '';
+  password: string = '';
+  errorMessage: string = '';
 
-  constructor(private api: Api) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-  onSubmit() {
-    this.loginError = '';
-    this.loading = true;
-    this.api.login(this.username, this.password).subscribe({
-      next: (res) => {
-        this.loading = false;
-        alert('Login successful!');
-      },
-      error: (err) => {
-        this.loading = false;
-        this.loginError = err?.error?.message || 'Invalid username or password';
+  async login() {
+    try {
+      const exists = await this.authService.checkUserExists(this.email);
+      if (!exists) {
+        this.errorMessage = 'No account found';
+        return;
       }
-    });
+
+      await this.authService.login(this.email, this.password);
+      this.router.navigate(['/itineraries']);
+    } catch (error: any) {
+      this.errorMessage = error.message;
+    }
+  }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
   }
 }

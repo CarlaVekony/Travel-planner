@@ -1,24 +1,38 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from '@angular/fire/auth';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from 'firebase/auth';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private auth: Auth) {}
+  auth = getAuth();
 
-  register(email: string, password: string) {
-    return createUserWithEmailAndPassword(this.auth, email, password);
+  private loggedIn: boolean = false;
+
+  constructor() {
+    // Listen to Firebase auth state changes
+    onAuthStateChanged(this.auth, (user) => {
+      this.loggedIn = !!user;
+    });
   }
 
-  login(email: string, password: string) {
+  async login(email: string, password: string) {
     return signInWithEmailAndPassword(this.auth, email, password);
   }
 
-  logout() {
-    return signOut(this.auth);
+  async register(email: string, password: string) {
+    return createUserWithEmailAndPassword(this.auth, email, password);
   }
 
-  async getIdToken(): Promise<string | null> {
-    const user = this.auth.currentUser;
-    return user ? await user.getIdToken() : null;
+  async checkUserExists(email: string) {
+    const methods = await fetchSignInMethodsForEmail(this.auth, email);
+    return methods.length > 0;
+  }
+
+  logout() {
+    return this.auth.signOut();
+  }
+
+  // 🔹 Add this method
+  isLoggedIn(): boolean {
+    return this.loggedIn;
   }
 }
