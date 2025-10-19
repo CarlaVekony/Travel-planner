@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ItinerariesService, Itinerary } from '../../services/itineraries.service';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-itineraries',
@@ -22,35 +23,39 @@ export class Itineraries implements OnInit {
   constructor(
     private itinerariesService: ItinerariesService, 
     private router: Router,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private authService: AuthService
   ) {}
 
-  ngOnInit() {
-    this.loadItineraries();
+  async ngOnInit() {
+    await this.loadItineraries();
   }
 
-  loadItineraries() {
-    // First try to load from local storage
-    const localItineraries = this.localStorageService.getItineraries();
-    if (localItineraries.length > 0) {
-      console.log('Loaded itineraries from local storage:', localItineraries);
-      this.itineraries = localItineraries;
+  async loadItineraries() {
+    // Check if user is authenticated first
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      console.log('No user authenticated, redirecting to login');
+      this.router.navigate(['/login']);
       return;
     }
 
-    // If no local data, try backend
+    console.log('Loading itineraries for authenticated user:', currentUser.uid);
+
+    // Try backend first for user-specific data
     this.itinerariesService.getItineraries().subscribe({
       next: (itineraries) => {
         console.log('Loaded itineraries from backend:', itineraries);
         this.itineraries = itineraries;
-        // Save to local storage for persistence
-        this.localStorageService.saveItineraries(itineraries);
+        // Save to user-specific local storage for persistence
+        this.localStorageService.saveItineraries(itineraries, currentUser.uid);
       },
       error: (error) => {
         console.error('Error loading itineraries from backend:', error);
-        // Start with empty array if backend is not available
-        this.itineraries = [];
-        console.log('Using empty itineraries array for testing');
+        // Fallback to user-specific local storage if backend fails
+        const localItineraries = this.localStorageService.getItineraries(currentUser.uid);
+        console.log('Falling back to user-specific local storage:', localItineraries);
+        this.itineraries = localItineraries;
       }
     });
   }
@@ -58,7 +63,7 @@ export class Itineraries implements OnInit {
   addItinerary() {
     console.log('addItinerary called with:', this.newItinerary);
     
-    if (!this.newItinerary.name || !this.newItinerary.location || !this.newItinerary.startDate || !this.newItinerary.endDate) {
+    if (!this.newItinerary.title || !this.newItinerary.country || !this.newItinerary.city || !this.newItinerary.startDate || !this.newItinerary.endDate) {
       console.log('Validation failed - missing required fields');
       return;
     }
@@ -66,10 +71,12 @@ export class Itineraries implements OnInit {
     // Create itinerary with unique ID
     const newItinerary: Itinerary = {
       id: Date.now(),
-      name: this.newItinerary.name!,
-      location: this.newItinerary.location!,
+      title: this.newItinerary.title!,
+      country: this.newItinerary.country!,
+      city: this.newItinerary.city!,
       startDate: this.newItinerary.startDate!,
       endDate: this.newItinerary.endDate!,
+      totalCost: this.newItinerary.totalCost || 0,
       notes: this.newItinerary.notes
     };
     
@@ -80,7 +87,8 @@ export class Itineraries implements OnInit {
       next: (createdItinerary) => {
         console.log('Itinerary created successfully in backend:', createdItinerary);
         this.itineraries.push(createdItinerary);
-        this.localStorageService.addItinerary(createdItinerary);
+        const currentUser = this.authService.getCurrentUser();
+        this.localStorageService.addItinerary(createdItinerary, currentUser?.uid);
         this.newItinerary = {};
         this.showAddForm = false;
       },
@@ -88,10 +96,11 @@ export class Itineraries implements OnInit {
         console.error('Error creating itinerary in backend:', error);
         // Add to local storage and array
         this.itineraries.push(newItinerary);
-        this.localStorageService.addItinerary(newItinerary);
+        const currentUser = this.authService.getCurrentUser();
+        this.localStorageService.addItinerary(newItinerary, currentUser?.uid);
         this.newItinerary = {};
         this.showAddForm = false;
-        console.log('Added itinerary to local storage for persistence');
+        console.log('Added itinerary to user-specific local storage for persistence');
       }
     });
   }
@@ -110,7 +119,8 @@ export class Itineraries implements OnInit {
     }
     
     // Remove from local storage first
-    this.localStorageService.deleteItinerary(id);
+    const currentUser = this.authService.getCurrentUser();
+    this.localStorageService.deleteItinerary(id, currentUser?.uid);
     this.itineraries = this.itineraries.filter(i => i.id !== id);
     
     // Try backend
@@ -137,7 +147,8 @@ export class Itineraries implements OnInit {
     console.log('Saving edited itinerary:', this.editingItinerary);
     
     // Update local storage
-    this.localStorageService.updateItinerary(this.editingItinerary);
+    const currentUser = this.authService.getCurrentUser();
+    this.localStorageService.updateItinerary(this.editingItinerary, currentUser?.uid);
     
     // Update local array
     const index = this.itineraries.findIndex(i => i.id === this.editingItinerary!.id);
@@ -166,5 +177,17 @@ export class Itineraries implements OnInit {
 
   openItinerary(itinerary: Itinerary) {
     this.router.navigate([`/itineraries/${itinerary.id}/activities`]);
+  }
+
+  async logout() {
+    try {
+      await this.authService.logout();
+      // Redirect to home page after logout
+      this.router.navigate(['/']);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect even if logout fails
+      this.router.navigate(['/']);
+    }
   }
 }

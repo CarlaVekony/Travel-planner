@@ -5,14 +5,13 @@ import { Observable } from 'rxjs';
 export interface Activity {
   id?: number;
   name: string;
-  location: string;
+  latitude: number;
+  longitude: number;
   startTime: string;
-  duration: number;
+  durationMinutes: number;
   cost: number;
-  date: string;
-  latitude?: number;
-  longitude?: number;
   notes?: string;
+  dayIdentifier: string;
   itineraryId: number;
 }
 

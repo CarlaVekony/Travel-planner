@@ -1,53 +1,167 @@
+/* Home Container */
 .home-container {
+  height: 100vh;
+  background: #1a4d3a;
+  color: white;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* Hero Section */
+.hero {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 50vh;
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto 0 0;
+  gap: 2rem;
+  padding-left: 25%;
+}
+
+.hero-content {
+  flex: 1;
+  text-align: left;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.1;
   color: white;
-  text-align: center;
 }
 
-.home-container h1 {
-  font-size: 3rem;
-  margin-bottom: 2rem;
-  font-weight: 300;
+.hero-subtitle {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+  line-height: 1.4;
 }
 
-.button-group {
+.hero-actions {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+/* Removed hero-image and world map styling */
+
+/* Features Section */
+.features {
+  padding: 1rem;
+  background: #1a4d3a;
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
 }
 
-.btn {
-  padding: 1rem 2rem;
-  border: 2px solid rgba(255,255,255,0.3);
+/* Features header removed */
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: rgba(168, 213, 186, 0.15);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168, 213, 186, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.feature-image {
+  width: 100%;
+  height: 120px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feature-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   border-radius: 8px;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  text-decoration: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card h3 {
   font-size: 1rem;
   font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.feature-card p {
+  opacity: 0.8;
+  line-height: 1.3;
+  font-size: 0.8rem;
+}
+
+/* CTA Section removed */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid rgba(168, 213, 186, 0.4);
+  border-radius: 8px;
+  background: rgba(168, 213, 186, 0.15);
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
 
 .btn:hover {
-  background: rgba(255,255,255,0.2);
-  border-color: rgba(255,255,255,0.5);
+  background: rgba(168, 213, 186, 0.25);
+  border-color: rgba(168, 213, 186, 0.6);
   transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary {
-  background: rgba(255,255,255,0.2);
-  border-color: rgba(255,255,255,0.4);
+  background: rgba(168, 213, 186, 0.25);
+  border-color: rgba(168, 213, 186, 0.5);
 }
 
-.btn-secondary {
+.btn-outline {
   background: transparent;
-  border-color: rgba(255,255,255,0.3);
+  border-color: rgba(168, 213, 186, 0.4);
 }
+
+.btn-large {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+/* No animations needed for simple map */
+
+/* Responsive Design removed - no scrolling needed */

@@ -13,6 +13,12 @@
   border-bottom: 2px solid #e0e0e0;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .header h1 {
   color: #333;
   margin: 0;

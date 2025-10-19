@@ -2,116 +2,320 @@
   <div class="header">
     <div class="header-left">
       <button class="btn-back" (click)="goBack()">← Back to Itineraries</button>
-      <h1>{{ itinerary?.name || 'Activities' }}</h1>
-      <p class="itinerary-info">{{ itinerary?.location }} • {{ itinerary?.startDate }} to {{ itinerary?.endDate }}</p>
+      <h1>{{ itinerary?.title || 'Activities' }}</h1>
+      <p class="itinerary-info">{{ itinerary?.city }}, {{ itinerary?.country }} • {{ itinerary?.startDate }} to {{ itinerary?.endDate }}</p>
     </div>
     <div class="header-right">
-      <button class="btn-primary" (click)="showAddForm = !showAddForm">
+      <button class="btn-primary" (click)="toggleAddForm()">
         {{ showAddForm ? 'Cancel' : 'Add Activity' }}
       </button>
     </div>
   </div>
 
-  <!-- Add Activity Form -->
-  <div class="add-form" *ngIf="showAddForm">
-    <h3>Add New Activity</h3>
-    <form (ngSubmit)="addActivity()">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="name">Activity Name:</label>
-          <input 
-            type="text" 
-            id="name" 
-            [(ngModel)]="newActivity.name" 
-            name="name" 
-            placeholder="e.g., Visit Colosseum"
-            required>
+      <!-- Add Activity Form -->
+      <div class="add-form" *ngIf="showAddForm">
+        <h3>Add New Activity</h3>
+        <form (ngSubmit)="addActivity()" #activityForm="ngForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Activity Name:</label>
+              <input 
+                type="text" 
+                id="name" 
+                [(ngModel)]="newActivity.name" 
+                name="name" 
+                placeholder="e.g., Visit Colosseum"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label>Location:</label>
+              <div class="location-input">
+                <input 
+                  type="text" 
+                  [(ngModel)]="newActivity.locationName" 
+                  name="locationName" 
+                  placeholder="Click to select location on map"
+                  readonly>
+                <button type="button" class="btn-map" (click)="openMapModal()">
+                  🗺️ Select on Map
+                </button>
+              </div>
+              <div class="coordinates-display" *ngIf="newActivity.latitude && newActivity.longitude">
+                <small>📍 {{ newActivity.latitude | number:'1.4-4' }}, {{ newActivity.longitude | number:'1.4-4' }}</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dayIdentifier">Date (Optional - leave empty for buffer):</label>
+              <input 
+                type="date" 
+                id="dayIdentifier" 
+                [(ngModel)]="newActivity.dayIdentifier" 
+                name="dayIdentifier">
+            </div>
+            
+            <div class="form-group">
+              <label for="startTime">Start Time (Optional):</label>
+              <input 
+                type="time" 
+                id="startTime" 
+                [(ngModel)]="newActivity.startTime" 
+                name="startTime">
+            </div>
+            
+            <div class="form-group">
+              <label for="durationMinutes">Duration (minutes):</label>
+              <input 
+                type="number" 
+                id="durationMinutes" 
+                [(ngModel)]="newActivity.durationMinutes" 
+                name="durationMinutes" 
+                min="30" 
+                step="30"
+                placeholder="120"
+                required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cost">Cost (€):</label>
+              <input 
+                type="number" 
+                id="cost" 
+                [(ngModel)]="newActivity.cost" 
+                name="cost" 
+                min="0" 
+                step="0.01"
+                placeholder="25.00">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="notes">Notes:</label>
+            <textarea 
+              id="notes" 
+              [(ngModel)]="newActivity.notes" 
+              name="notes" 
+              placeholder="Any special notes about this activity..."
+              rows="3"></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Add Activity</button>
+            <button type="button" class="btn-secondary" (click)="showAddForm = false">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Buffer Zone -->
+      <div class="buffer-zone" *ngIf="showBufferZone">
+        <div class="buffer-header">
+          <h3>📋 Activity Buffer</h3>
+          <button class="btn-toggle" (click)="toggleBufferZone()">
+            {{ showBufferZone ? 'Hide Buffer' : 'Show Buffer' }}
+          </button>
         </div>
         
-        <div class="form-group">
-          <label for="location">Location:</label>
-          <div class="location-input-group">
-            <input 
-              type="text" 
-              id="location" 
-              [(ngModel)]="newActivity.location" 
-              name="location" 
-              placeholder="e.g., Colosseum, Rome"
-              readonly>
-            <button type="button" class="btn-map" (click)="openLocationPicker()">
-              🗺️ Pick on Map
+        <div class="buffer-content" *ngIf="bufferActivities.length > 0; else noBufferActivities">
+          <div class="buffer-activity" 
+               *ngFor="let activity of bufferActivities"
+               [class.placed]="isActivityPlaced(activity)">
+            <div class="activity-info">
+              <h4>{{ activity.name }}</h4>
+              <p *ngIf="activity.notes">{{ activity.notes }}</p>
+              <div class="activity-meta">
+                <span *ngIf="activity.cost > 0">€{{ activity.cost }}</span>
+                <span>{{ activity.durationMinutes }} min</span>
+                <span *ngIf="isActivityPlaced(activity)" class="placed-indicator">✓ Placed</span>
+              </div>
+              <div class="schedule-info" *ngIf="isActivityPlaced(activity) && activity.dayIdentifier && activity.dayIdentifier.trim() !== ''">
+                <div class="schedule-details">
+                  <span class="schedule-date">📅 {{ formatDate(activity.dayIdentifier) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="activity-actions">
+              <button class="btn-schedule" 
+                      (click)="openScheduleModal(activity)"
+                      [disabled]="isActivityPlaced(activity)">
+                {{ isActivityPlaced(activity) ? 'Placed' : 'Schedule' }}
+              </button>
+              <button class="btn-edit" (click)="openEditModal(activity)">Edit</button>
+              <button class="btn-delete" (click)="deleteActivityFromBuffer(activity.id)">Delete</button>
+            </div>
+          </div>
+        </div>
+        
+        <ng-template #noBufferActivities>
+          <div class="empty-buffer">
+            <p>No activities in buffer. Add activities without dates to plan them later.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Show Buffer Button when hidden -->
+      <div class="show-buffer-section" *ngIf="!showBufferZone">
+        <button class="btn-show-buffer" (click)="toggleBufferZone()">
+          📋 Show Activity Buffer
+        </button>
+      </div>
+
+      <!-- Scheduling Modal -->
+      <div class="modal-overlay" *ngIf="showScheduleModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>{{ activityToSchedule.name }} - Schedule Activity</h3>
+            <button class="btn-close" (click)="closeScheduleModal()">×</button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="scheduleDate">Date:</label>
+              <input 
+                type="date" 
+                id="scheduleDate" 
+                [(ngModel)]="scheduleDate" 
+                name="scheduleDate"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label for="scheduleTime">Start Time:</label>
+              <input 
+                type="time" 
+                id="scheduleTime" 
+                [(ngModel)]="scheduleTime" 
+                name="scheduleTime"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label for="duration">Duration (minutes):</label>
+              <input 
+                type="number" 
+                id="duration" 
+                [(ngModel)]="activityToSchedule.durationMinutes" 
+                name="duration" 
+                min="30" 
+                step="30"
+                required>
+            </div>
+            
+            <div class="time-preview" *ngIf="scheduleTime && activityToSchedule.durationMinutes">
+              <p><strong>End Time:</strong> {{ getEndTime(activityToSchedule) }}</p>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button class="btn-primary" (click)="confirmSchedule()">
+              Schedule Activity
+            </button>
+            <button class="btn-secondary" (click)="closeScheduleModal()">
+              Cancel
             </button>
           </div>
         </div>
       </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="date">Date:</label>
-          <input 
-            type="date" 
-            id="date" 
-            [(ngModel)]="newActivity.date" 
-            name="date"
-            required>
-        </div>
-        
-        <div class="form-group">
-          <label for="startTime">Start Time:</label>
-          <input 
-            type="time" 
-            id="startTime" 
-            [(ngModel)]="newActivity.startTime" 
-            name="startTime"
-            required>
-        </div>
-        
-        <div class="form-group">
-          <label for="duration">Duration (hours):</label>
-          <input 
-            type="number" 
-            id="duration" 
-            [(ngModel)]="newActivity.duration" 
-            name="duration" 
-            min="0.5" 
-            step="0.5"
-            placeholder="2"
-            required>
+
+      <!-- Edit Modal -->
+      <div class="modal-overlay" *ngIf="showEditModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Edit Activity Details</h3>
+            <button class="btn-close" (click)="closeEditModal()">×</button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="editName">Activity Name:</label>
+              <input 
+                type="text" 
+                id="editName" 
+                [(ngModel)]="activityToSchedule.name" 
+                name="editName"
+                placeholder="Enter activity name"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label for="editCost">Cost (€):</label>
+              <input 
+                type="number" 
+                id="editCost" 
+                [(ngModel)]="activityToSchedule.cost" 
+                name="editCost" 
+                min="0" 
+                step="0.01"
+                placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+              <label for="editNotes">Notes:</label>
+              <textarea 
+                id="editNotes" 
+                [(ngModel)]="activityToSchedule.notes" 
+                name="editNotes" 
+                rows="3"
+                placeholder="Any additional notes about this activity..."></textarea>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button class="btn-primary" (click)="updateActivityDetails()">
+              Save Changes
+            </button>
+            <button class="btn-secondary" (click)="closeEditModal()">
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="cost">Cost (€):</label>
-          <input 
-            type="number" 
-            id="cost" 
-            [(ngModel)]="newActivity.cost" 
-            name="cost" 
-            min="0" 
-            step="0.01"
-            placeholder="25.00">
+
+      <!-- Google Maps Modal -->
+      <div class="modal-overlay" *ngIf="showMapModal">
+        <div class="modal-content map-modal">
+          <div class="modal-header">
+            <h3>Select Location</h3>
+            <button class="btn-close" (click)="closeMapModal()">×</button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="search-container">
+              <input 
+                type="text" 
+                id="search-box" 
+                placeholder="Search for a place... (Press Enter to search)"
+                class="search-input">
+            </div>
+            
+            <div id="map" class="map-container">
+              <div class="map-loading" *ngIf="!selectedLocation">
+                <div class="loading-spinner"></div>
+                <p>Loading Map...</p>
+              </div>
+            </div>
+            
+            <div class="selected-location" *ngIf="selectedLocation">
+              <h4>Selected Location:</h4>
+              <p><strong>Address:</strong> {{ selectedLocation.address }}</p>
+              <p><strong>Coordinates:</strong> {{ selectedLocation.lat | number:'1.4-4' }}, {{ selectedLocation.lng | number:'1.4-4' }}</p>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <button class="btn-primary" (click)="selectLocation()" [disabled]="!selectedLocation">
+              Select This Location
+            </button>
+            <button class="btn-secondary" (click)="closeMapModal()">
+              Cancel
+            </button>
+          </div>
         </div>
-        
-        <!-- Coordinates are now handled by the location picker -->
       </div>
-      
-      <div class="form-group">
-        <label for="notes">Notes:</label>
-        <textarea 
-          id="notes" 
-          [(ngModel)]="newActivity.notes" 
-          name="notes" 
-          placeholder="Any special notes about this activity..."
-          rows="3"></textarea>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" class="btn-primary">Add Activity</button>
-        <button type="button" class="btn-secondary" (click)="showAddForm = false">Cancel</button>
-      </div>
-    </form>
-  </div>
 
   <!-- Days Navigation -->
   <div class="days-navigation" *ngIf="days.length > 0">
@@ -135,6 +339,9 @@
       <div class="day-summary">
         <span class="total-cost">Total Cost: €{{ getDayTotalCost(selectedDay) }}</span>
         <span class="activity-count">{{ getDayActivities(selectedDay).length }} activities</span>
+        <button class="btn-optimize" (click)="optimizeSchedule()" *ngIf="getDayActivities(selectedDay).length > 1">
+          🚀 Realistic Schedule
+        </button>
       </div>
     </div>
     
@@ -142,25 +349,21 @@
       <div class="activity-card" *ngFor="let activity of getDayActivities(selectedDay); let i = index">
         <div class="activity-header">
           <h4>{{ activity.name }}</h4>
-          <div class="activity-actions">
-            <button class="btn-icon" (click)="editActivity(activity)" title="Edit">
-              ✏️
-            </button>
-            <button class="btn-icon btn-danger" (click)="deleteActivity(activity.id)" title="Delete">
-              🗑️
-            </button>
-          </div>
+            <div class="activity-actions">
+              <button class="btn-icon" (click)="editActivity(activity)" title="Edit">
+                ✏️
+              </button>
+              <button class="btn-icon btn-buffer" (click)="unscheduleActivity(activity)" title="Move to Buffer">
+                📋
+              </button>
+            </div>
         </div>
         
-        <div class="activity-details">
-          <div class="detail-row">
-            <span class="detail-label">📍 Location:</span>
-            <span>{{ activity.location }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">🕐 Time:</span>
-            <span>{{ activity.startTime }} ({{ activity.duration }}h)</span>
-          </div>
+            <div class="activity-details">
+              <div class="detail-row">
+                <span class="detail-label">🕐 Time:</span>
+                <span>{{ activity.startTime }} - {{ getEndTime(activity) }} ({{ activity.durationMinutes }} min)</span>
+              </div>
           <div class="detail-row" *ngIf="activity.cost > 0">
             <span class="detail-label">💰 Cost:</span>
             <span>€{{ activity.cost }}</span>
@@ -204,15 +407,4 @@
     </div>
   </div>
 
-  <!-- Location Picker Modal -->
-  <div class="modal-overlay" *ngIf="showLocationPicker" (click)="closeLocationPicker()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <app-location-picker 
-        [initialLat]="newActivity.latitude || 44.4268"
-        [initialLng]="newActivity.longitude || 26.1025"
-        [initialLocation]="newActivity.location || ''"
-        (locationSelected)="onLocationSelected($event)">
-      </app-location-picker>
-    </div>
-  </div>
 </div>

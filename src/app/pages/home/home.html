@@ -1,11 +1,48 @@
 <div class="home-container">
-  <h1>Welcome to Vacation Planner!</h1>
-  <p>Plan your perfect vacation with ease</p>
-  <div class="button-group">
-    <button class="btn btn-primary" (click)="goToLogin()">Login</button>
-    <button class="btn btn-secondary" (click)="goToRegister()">Register</button>
-  </div>
-  
-  <app-debug></app-debug>
-  <app-test-routing></app-test-routing>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Plan Your Perfect Vacation</h1>
+      <p class="hero-subtitle">Create detailed itineraries, manage activities, and make the most of your travel time</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-large" (click)="goToLogin()">
+          <span class="btn-icon">🚀</span>
+          Get Started
+        </button>
+        <button class="btn btn-outline btn-large" (click)="goToRegister()">
+          <span class="btn-icon">👤</span>
+          Create Account
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-image">
+          <img src="assets/images/schedule.jpg" alt="Smart Scheduling" />
+        </div>
+        <h3>Smart Scheduling</h3>
+        <p>Plan your days with intelligent time management and travel time calculations</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-image">
+          <img src="assets/images/map.jpg" alt="Interactive Maps" />
+        </div>
+        <h3>Interactive Maps</h3>
+        <p>Choose locations with our integrated map system and get accurate travel times</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-image">
+          <img src="assets/images/buget.jpg" alt="Budget Tracking" />
+        </div>
+        <h3>Budget Tracking</h3>
+        <p>Keep track of your expenses and stay within your travel budget</p>
+      </div>
+    </div>
+  </section>
 </div>

@@ -17,7 +17,7 @@ export class UserService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   createOrUpdateUser(user: Omit<User, 'id'>): Observable<User> {
-    return this.http.post<User>(this.baseUrl, user);
+    return this.http.post<User>(`${this.baseUrl}/create`, user);
   }
 
   getCurrentUser(): Observable<User> {

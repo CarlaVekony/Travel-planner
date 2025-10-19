@@ -1,9 +1,14 @@
 <div class="itineraries-container">
   <div class="header">
     <h1>My Itineraries</h1>
-    <button class="btn-primary" (click)="showAddForm = !showAddForm">
-      {{ showAddForm ? 'Cancel' : 'Add New Itinerary' }}
-    </button>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="showAddForm = !showAddForm">
+        {{ showAddForm ? 'Cancel' : 'Add New Itinerary' }}
+      </button>
+      <button class="btn-secondary" (click)="logout()">
+        Logout
+      </button>
+    </div>
   </div>
 
   <!-- Add New Itinerary Form -->
@@ -11,25 +16,38 @@
     <h3>Create New Itinerary</h3>
     <form (ngSubmit)="addItinerary()">
       <div class="form-group">
-        <label for="name">Itinerary Name:</label>
+        <label for="title">Itinerary Title:</label>
         <input 
           type="text" 
-          id="name" 
-          [(ngModel)]="newItinerary.name" 
-          name="name" 
+          id="title" 
+          [(ngModel)]="newItinerary.title" 
+          name="title" 
           placeholder="e.g., Summer Trip to Italy"
           required>
       </div>
       
-      <div class="form-group">
-        <label for="location">Location:</label>
-        <input 
-          type="text" 
-          id="location" 
-          [(ngModel)]="newItinerary.location" 
-          name="location" 
-          placeholder="e.g., Rome, Italy"
-          required>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="country">Country:</label>
+          <input 
+            type="text" 
+            id="country" 
+            [(ngModel)]="newItinerary.country" 
+            name="country" 
+            placeholder="e.g., Italy"
+            required>
+        </div>
+        
+        <div class="form-group">
+          <label for="city">City:</label>
+          <input 
+            type="text" 
+            id="city" 
+            [(ngModel)]="newItinerary.city" 
+            name="city" 
+            placeholder="e.g., Rome"
+            required>
+        </div>
       </div>
       
       <div class="form-row">
@@ -76,25 +94,38 @@
     <h3>Edit Itinerary</h3>
     <form (ngSubmit)="saveEdit()">
       <div class="form-group">
-        <label for="editName">Itinerary Name:</label>
+        <label for="editTitle">Itinerary Title:</label>
         <input 
           type="text" 
-          id="editName" 
-          [(ngModel)]="editingItinerary.name" 
-          name="editName" 
+          id="editTitle" 
+          [(ngModel)]="editingItinerary.title" 
+          name="editTitle" 
           placeholder="e.g., Summer Trip to Italy"
           required>
       </div>
       
-      <div class="form-group">
-        <label for="editLocation">Location:</label>
-        <input 
-          type="text" 
-          id="editLocation" 
-          [(ngModel)]="editingItinerary.location" 
-          name="editLocation" 
-          placeholder="e.g., Rome, Italy"
-          required>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editCountry">Country:</label>
+          <input 
+            type="text" 
+            id="editCountry" 
+            [(ngModel)]="editingItinerary.country" 
+            name="editCountry" 
+            placeholder="e.g., Italy"
+            required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editCity">City:</label>
+          <input 
+            type="text" 
+            id="editCity" 
+            [(ngModel)]="editingItinerary.city" 
+            name="editCity" 
+            placeholder="e.g., Rome"
+            required>
+        </div>
       </div>
       
       <div class="form-row">
@@ -140,7 +171,7 @@
   <div class="itineraries-list" *ngIf="itineraries.length > 0; else noItineraries">
     <div class="itinerary-card" *ngFor="let itinerary of itineraries">
       <div class="itinerary-header">
-        <h3>{{ itinerary.name }}</h3>
+        <h3>{{ itinerary.title }}</h3>
         <div class="itinerary-actions">
           <button class="btn-icon" (click)="updateItinerary(itinerary)" title="Edit">
             ✏️
@@ -152,8 +183,9 @@
       </div>
       
       <div class="itinerary-details">
-        <p><strong>Location:</strong> {{ itinerary.location }}</p>
+        <p><strong>Location:</strong> {{ itinerary.city }}, {{ itinerary.country }}</p>
         <p><strong>Duration:</strong> {{ itinerary.startDate }} to {{ itinerary.endDate }}</p>
+        <p *ngIf="itinerary.totalCost"><strong>Total Cost:</strong> ${{ itinerary.totalCost | number:'1.2-2' }}</p>
         <p *ngIf="itinerary.notes"><strong>Notes:</strong> {{ itinerary.notes }}</p>
       </div>
       
