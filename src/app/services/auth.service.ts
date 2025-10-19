@@ -15,11 +15,15 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    return signInWithEmailAndPassword(this.auth, email, password);
+    const res = await signInWithEmailAndPassword(this.auth, email, password);
+    this.loggedIn = true;
+    return res;
   }
 
   async register(email: string, password: string) {
-    return createUserWithEmailAndPassword(this.auth, email, password);
+    const res = await createUserWithEmailAndPassword(this.auth, email, password);
+    this.loggedIn = true;
+    return res;
   }
 
   async checkUserExists(email: string) {
@@ -33,6 +37,17 @@ export class AuthService {
 
   // 🔹 Add this method
   isLoggedIn(): boolean {
-    return this.loggedIn;
+    return this.loggedIn || !!this.auth.currentUser;
+  }
+
+  // helper to wait for auth state initialization
+  async ensureLoggedIn(): Promise<boolean> {
+    if (this.isLoggedIn()) return true;
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(this.auth, (user) => {
+        unsubscribe();
+        resolve(!!user);
+      });
+    });
   }
 }
