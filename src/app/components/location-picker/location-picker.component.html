@@ -1,0 +1,34 @@
+<div class="location-picker-container">
+  <div class="search-section">
+    <h3>Select Location on Map</h3>
+    <div class="search-input">
+      <input 
+        type="text" 
+        [(ngModel)]="selectedAddress" 
+        placeholder="Search for a location or click on the map"
+        (keyup.enter)="onSearchLocation()"
+        class="location-search-input">
+      <button (click)="onSearchLocation()" class="search-btn">Search</button>
+    </div>
+    <p class="selected-location">Selected: {{ selectedAddress }}</p>
+  </div>
+
+  <div class="map-container">
+    <div #mapContainer class="google-map"></div>
+  </div>
+
+  <div class="coordinates-info">
+    <div class="coordinate-item">
+      <span class="label">Latitude:</span>
+      <span class="value">{{ latitude.toFixed(6) }}</span>
+    </div>
+    <div class="coordinate-item">
+      <span class="label">Longitude:</span>
+      <span class="value">{{ longitude.toFixed(6) }}</span>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <button (click)="confirmLocation()" class="confirm-btn">Confirm Location</button>
+  </div>
+</div>

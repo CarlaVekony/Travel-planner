@@ -1,5 +1,11 @@
 <div class="home-container">
-  <h2>Welcome to Vacation Planner!</h2>
-  <button (click)="goToLogin()">Login</button>
-  <button (click)="goToRegister()">Register</button>
+  <h1>Welcome to Vacation Planner!</h1>
+  <p>Plan your perfect vacation with ease</p>
+  <div class="button-group">
+    <button class="btn btn-primary" (click)="goToLogin()">Login</button>
+    <button class="btn btn-secondary" (click)="goToRegister()">Register</button>
+  </div>
+  
+  <app-debug></app-debug>
+  <app-test-routing></app-test-routing>
 </div>

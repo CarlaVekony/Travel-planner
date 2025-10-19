@@ -1,5 +1,5 @@
 
-export  const environment = {
+export const environment = {
   production: false,
   firebase: {
     apiKey: "AIzaSyBHjsjIELOGUDNUz2BS96tKvBDyIiXxAJY",
@@ -9,5 +9,8 @@ export  const environment = {
     messagingSenderId: "644183564621",
     appId: "1:644183564621:web:eaf2d6a8442c5220031704",
     measurementId: "G-2L669YCJBR"
+  },
+  googleMaps: {
+    apiKey: "AIzaSyBHjsjIELOGUDNUz2BS96tKvBDyIiXxAJY" // Using the same key for now
   }
 };
