@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActivitiesService, Activity } from '../../services/activities.service';
 import { ItinerariesService, Itinerary } from '../../services/itineraries.service';
-import { LocalStorageService } from '../../services/local-storage.service';
 import { AuthService } from '../../services/auth.service';
 
 // Leaflet type declarations
@@ -42,13 +41,14 @@ export class Activities implements OnInit {
   activityToSchedule: Activity = {
     id: 0,
     name: '',
+    location: '',
     latitude: 0,
     longitude: 0,
     startTime: '09:00',
-    durationMinutes: 120,
+    duration: 120,
     cost: 0,
+    date: '',
     notes: '',
-    dayIdentifier: '',
     itineraryId: 0
   };
   scheduleDate: string = '';
@@ -60,7 +60,6 @@ export class Activities implements OnInit {
     private router: Router,
     private activitiesService: ActivitiesService,
     private itinerariesService: ItinerariesService,
-    private localStorageService: LocalStorageService,
     private authService: AuthService
   ) {}
 
@@ -86,39 +85,10 @@ export class Activities implements OnInit {
   }
 
   loadItineraryFromLocalStorage() {
-    const currentUser = this.authService.getCurrentUser();
-    const userId = currentUser?.uid;
-    
-    if (userId) {
-      const localItineraries = this.localStorageService.getItineraries(userId);
-      const itinerary = localItineraries.find(i => i.id === this.itineraryId);
-      
-      if (itinerary) {
-        console.log('Loaded itinerary from local storage:', itinerary);
-        this.itinerary = itinerary;
-        this.generateDays();
-        return;
-      }
-    }
-    
-    // Final fallback to mock data for development
-    console.log('No itinerary found, using mock data');
-    const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() + 1);
-    const endDate = new Date(today);
-    endDate.setDate(endDate.getDate() + 5); // 5-day trip instead of 2
-    
-        this.itinerary = {
-          id: this.itineraryId,
-      title: 'Sample Trip',
-      country: 'Italy',
-      city: 'Rome',
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-        };
-        this.generateDays();
-      }
+    // No longer using local storage - redirect to itineraries if backend fails
+    console.log('Backend unavailable, redirecting to itineraries');
+    this.router.navigate(['/itineraries']);
+  }
 
   generateDays() {
     if (!this.itinerary) {
@@ -169,70 +139,30 @@ export class Activities implements OnInit {
   loadActivities() {
     console.log('Loading activities for itinerary ID:', this.itineraryId);
     
-    // Try backend first
+    // Load activities from backend API
     this.activitiesService.getActivities(this.itineraryId).subscribe({
       next: (activities) => {
         console.log('Loaded activities from backend:', activities);
         this.separateActivities(activities);
         // Load placed activity IDs to restore grayed out state
         this.loadPlacedActivityIds();
-        // Save to local storage for persistence
-        this.saveActivitiesToLocalStorage();
       },
       error: (error) => {
         console.error('Error loading activities from backend:', error);
-        // Fallback to local storage
-        this.loadActivitiesFromLocalStorage();
+        alert('Failed to load activities. Please try again.');
       }
     });
   }
 
   loadActivitiesFromLocalStorage() {
-    const currentUser = this.authService.getCurrentUser();
-    const userId = currentUser?.uid;
-    
-    if (userId) {
-      const localActivities = this.localStorageService.getActivitiesByItineraryId(this.itineraryId, userId);
-      console.log('Loaded activities from local storage:', localActivities);
-      this.separateActivities(localActivities);
-      
-      // Load placed activity IDs to restore grayed out state
-      this.loadPlacedActivityIds();
-    } else {
-      console.log('No user authenticated, starting with empty activities');
-      this.activities = [];
-      this.bufferActivities = [];
-    }
+    // No longer using local storage - show error message
+    console.log('Backend unavailable for activities');
+    alert('Unable to load activities. Please check your connection.');
   }
 
   saveActivitiesToLocalStorage() {
-    const currentUser = this.authService.getCurrentUser();
-    const userId = currentUser?.uid;
-    
-    if (userId) {
-      // Remove duplicates before saving
-      const allActivities = [...this.activities, ...this.bufferActivities];
-      const uniqueActivities = allActivities.reduce((acc, activity) => {
-        const existingIndex = acc.findIndex(a => a.id === activity.id);
-        if (existingIndex === -1) {
-          acc.push(activity);
-        } else {
-          // If duplicate found, keep the one with dayIdentifier (scheduled version)
-          if (activity.dayIdentifier && activity.dayIdentifier.trim() !== '') {
-            acc[existingIndex] = activity;
-          }
-        }
-        return acc;
-      }, [] as Activity[]);
-      
-      this.localStorageService.saveActivities(uniqueActivities, userId);
-      
-      // Also save the placed activity IDs to maintain grayed out state
-      const placedIdsArray = Array.from(this.placedActivityIds);
-      localStorage.setItem(`travel_planner_placed_activities_${userId}`, JSON.stringify(placedIdsArray));
-      
-      console.log('Saved unique activities to local storage:', uniqueActivities);
-    }
+    // No longer using local storage - data is persisted via backend API
+    console.log('Data is now persisted via backend API');
   }
 
   loadPlacedActivityIds() {
@@ -259,7 +189,7 @@ export class Activities implements OnInit {
         acc.push(activity);
       } else {
         // If duplicate found, keep the one with dayIdentifier (scheduled version)
-        if (activity.dayIdentifier && activity.dayIdentifier.trim() !== '') {
+        if (activity.date && activity.date.trim() !== '') {
           acc[existingIndex] = activity;
         }
       }
@@ -269,18 +199,24 @@ export class Activities implements OnInit {
     console.log('Unique activities after deduplication:', uniqueActivities);
     
     // Separate into scheduled and buffer
-    this.activities = uniqueActivities.filter(activity => activity.dayIdentifier && activity.dayIdentifier.trim() !== '');
+    // Scheduled activities have real dates (not the BUFFER_ACTIVITY marker)
+    this.activities = uniqueActivities.filter(activity => 
+      activity.date && 
+      activity.date.trim() !== '' && 
+      activity.date !== 'BUFFER_ACTIVITY'
+    );
     
-    // For buffer activities, we need to show ALL activities (both scheduled and unscheduled)
-    // Scheduled activities should appear in buffer as placed (grayed out)
-    this.bufferActivities = uniqueActivities;
+    // Buffer activities are those with the BUFFER_ACTIVITY marker
+    this.bufferActivities = uniqueActivities.filter(activity => 
+      activity.date === 'BUFFER_ACTIVITY'
+    );
     
     console.log('Scheduled activities:', this.activities);
     console.log('Buffer activities (all):', this.bufferActivities);
     
-    // Debug each activity's dayIdentifier
+    // Debug each activity's date
     uniqueActivities.forEach(activity => {
-      console.log(`Activity "${activity.name}" - dayIdentifier: "${activity.dayIdentifier}"`);
+      console.log(`Activity "${activity.name}" - date: "${activity.date}"`);
     });
   }
 
@@ -294,72 +230,65 @@ export class Activities implements OnInit {
     }
     
     // Check if we're creating a buffer activity (no date/time) or scheduled activity
-    const isBufferActivity = !this.newActivity.dayIdentifier || !this.newActivity.startTime;
+    const isBufferActivity = !this.newActivity.date || !this.newActivity.startTime;
     console.log('Is buffer activity:', isBufferActivity);
     
-    const activityData: Omit<Activity, 'id'> = {
+    // Prepare activity data for backend
+    // Note: Backend requires a date for all activities, so we use a special marker for buffer activities
+    const activityData: any = {
       name: this.newActivity.name!,
-      latitude: this.newActivity.latitude || 0,
-      longitude: this.newActivity.longitude || 0,
-      startTime: this.newActivity.startTime || '09:00', // Default time for buffer activities
-      durationMinutes: this.newActivity.durationMinutes || 120,
-      cost: this.newActivity.cost || 0,
-      dayIdentifier: this.newActivity.dayIdentifier || '', // Empty for buffer activities
-      notes: this.newActivity.notes,
-      itineraryId: this.itineraryId
+      location: this.newActivity.locationName || 'Unknown Location',
+      latitude: this.newActivity.latitude || 0.0,
+      longitude: this.newActivity.longitude || 0.0,
+      startTime: this.newActivity.startTime || '09:00',
+      duration: this.newActivity.duration || 120,
+      cost: this.newActivity.cost || 0.0,
+      notes: this.newActivity.notes || '',
+      itineraryId: this.itineraryId,
+      // For buffer activities, use a special date marker, otherwise use the provided date
+      date: isBufferActivity 
+        ? 'BUFFER_ACTIVITY' // Special marker for buffer activities
+        : this.newActivity.date
     };
     
     console.log('Creating activity with data:', activityData);
+    console.log('Activity data JSON:', JSON.stringify(activityData, null, 2));
     
-    // For now, let's add it locally first to test the UI
-    const mockActivity: Activity = {
-      id: Date.now(),
-      ...activityData
-    };
-    
+    // Create activity via backend API
+    this.activitiesService.createActivity(activityData).subscribe({
+      next: (createdActivity) => {
+        console.log('Activity created successfully:', createdActivity);
+        
         if (isBufferActivity) {
-          this.bufferActivities.push(mockActivity);
-          console.log('Added to buffer:', mockActivity);
+          this.bufferActivities.push(createdActivity);
+          console.log('Added to buffer:', createdActivity);
           alert('Activity added to buffer!');
         } else {
           // Check for time conflicts before adding to schedule
-          if (this.hasTimeConflict(0, this.newActivity.dayIdentifier!, this.newActivity.startTime!, this.newActivity.durationMinutes || 120)) {
-            const conflictingActivity = this.getConflictingActivity(0, this.newActivity.dayIdentifier!, this.newActivity.startTime!, this.newActivity.durationMinutes || 120);
+          if (this.hasTimeConflict(0, this.newActivity.date!, this.newActivity.startTime!, this.newActivity.duration || 120)) {
+            const conflictingActivity = this.getConflictingActivity(0, this.newActivity.date!, this.newActivity.startTime!, this.newActivity.duration || 120);
             alert(`Time conflict detected! This time slot overlaps with "${conflictingActivity?.name}" (${conflictingActivity?.startTime} - ${this.getEndTime(conflictingActivity!)}). Please choose a different time or add to buffer first.`);
             return;
           }
           
-          // Add to scheduled activities
-          this.activities.push(mockActivity);
+          // Add to scheduled activities only (not to buffer)
+          this.activities.push(createdActivity);
           
-          // Also add to buffer activities so it shows as placed
-          this.bufferActivities.push(mockActivity);
-          
-          console.log('Added to schedule and buffer:', mockActivity);
+          console.log('Added to schedule:', createdActivity);
           alert('Activity added to schedule!');
         }
         
-        // Save to local storage
-        this.saveActivitiesToLocalStorage();
-        
-        this.newActivity = {};
-        this.showAddForm = false;
-    
-    // Try backend call (commented out for now to test UI first)
-    /*
-    this.activitiesService.createActivity(activityData).subscribe({
-      next: (createdActivity) => {
-        if (isBufferActivity) {
-          this.bufferActivities.push(createdActivity);
-        } else {
-        this.activities.push(createdActivity);
-        }
         this.newActivity = {};
         this.showAddForm = false;
       },
-      error: (error) => console.error('Error creating activity:', error)
+      error: (error) => {
+        console.error('Error creating activity:', error);
+        console.error('Error details:', error.error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        alert(`Failed to create activity. Error: ${error.status} - ${error.message}`);
+      }
     });
-    */
   }
 
   deleteActivity(id: number | undefined) {
@@ -376,10 +305,10 @@ export class Activities implements OnInit {
       // Remove from scheduled
       this.activities = this.activities.filter(a => a.id !== id);
       
-      // Clear the dayIdentifier and startTime to make it a buffer activity
+      // Set the date to BUFFER_ACTIVITY marker to make it a buffer activity
       const bufferActivity = { 
         ...activityToMove, 
-        dayIdentifier: '', 
+        date: 'BUFFER_ACTIVITY', 
         startTime: '09:00' // Reset to default time
       };
       
@@ -396,8 +325,7 @@ export class Activities implements OnInit {
       // Remove from placed set (make it available again)
       this.placedActivityIds.delete(id);
       
-      // Save to local storage
-      this.saveActivitiesToLocalStorage();
+      // Data is now persisted via backend API
       
       console.log('Activity moved back to buffer and made available again');
       alert('Activity removed from itinerary and moved back to buffer');
@@ -430,20 +358,11 @@ export class Activities implements OnInit {
         this.activities = this.activities.filter(a => a.id !== id);
         this.bufferActivities = this.bufferActivities.filter(a => a.id !== id);
         this.placedActivityIds.delete(id);
-        // Save to local storage
-        this.saveActivitiesToLocalStorage();
         alert('Activity permanently deleted');
       },
       error: (error) => {
         console.error('Error deleting activity:', error);
-        // For now, remove from local array even if backend fails
-        this.activities = this.activities.filter(a => a.id !== id);
-        this.bufferActivities = this.bufferActivities.filter(a => a.id !== id);
-        this.placedActivityIds.delete(id);
-        // Save to local storage
-        this.saveActivitiesToLocalStorage();
-        alert('Activity permanently deleted');
-        console.log('Removed activity from local array for testing');
+        alert('Failed to delete activity. Please try again.');
       }
     });
   }
@@ -494,8 +413,8 @@ export class Activities implements OnInit {
     console.log('All activities:', this.activities);
     
     const filteredActivities = this.activities.filter(activity => {
-      console.log(`Activity ${activity.name} has dayIdentifier: ${activity.dayIdentifier}`);
-      return activity.dayIdentifier === dayIdentifier;
+      console.log(`Activity ${activity.name} has date: ${activity.date}`);
+      return activity.date === dayIdentifier;
     });
     
     // Sort activities by start time
@@ -542,13 +461,14 @@ export class Activities implements OnInit {
     this.activityToSchedule = {
       id: 0,
       name: '',
+      location: '',
       latitude: 0,
       longitude: 0,
       startTime: '09:00',
-      durationMinutes: 120,
+      duration: 120,
       cost: 0,
       notes: '',
-      dayIdentifier: '',
+      date: '',
       itineraryId: 0
     };
     this.scheduleDate = '';
@@ -570,10 +490,10 @@ export class Activities implements OnInit {
     // Remove from scheduled activities
     this.activities = this.activities.filter(a => a.id !== activity.id);
     
-    // Clear the dayIdentifier and startTime to make it a buffer activity
+    // Set the date to BUFFER_ACTIVITY marker to make it a buffer activity
     const bufferActivity = { 
       ...activity, 
-      dayIdentifier: '', 
+      date: 'BUFFER_ACTIVITY', 
       startTime: '09:00' // Reset to default time
     };
     
@@ -590,8 +510,7 @@ export class Activities implements OnInit {
     // Remove from placed set (make it available again)
     this.placedActivityIds.delete(activity.id!);
     
-    // Save to local storage
-    this.saveActivitiesToLocalStorage();
+    // Data is now persisted via backend API
     
     console.log('Activity moved back to buffer and made available again');
     alert('Activity moved back to buffer and is now available for scheduling');
@@ -604,19 +523,17 @@ export class Activities implements OnInit {
 
   // Check if activity is placed
   isActivityPlaced(activity: Activity): boolean {
-    // An activity is placed if it's in the activities array (scheduled) OR has a dayIdentifier
+    // An activity is placed if it's in the scheduled activities array (has a real date)
     const isInScheduled = this.activities.some(a => a.id === activity.id);
-    const hasDayIdentifier = !!(activity.dayIdentifier && activity.dayIdentifier.trim() !== '');
-    const isPlaced = isInScheduled || hasDayIdentifier;
-    return isPlaced;
+    return isInScheduled;
   }
 
   // Calculate end time for an activity
   getEndTime(activity: Activity): string {
-    if (!activity.startTime || !activity.durationMinutes) return '';
+    if (!activity.startTime || !activity.duration) return '';
     
     const startTime = new Date(`2000-01-01T${activity.startTime}`);
-    const endTime = new Date(startTime.getTime() + (activity.durationMinutes * 60000));
+    const endTime = new Date(startTime.getTime() + (activity.duration * 60000));
     return endTime.toTimeString().split(' ')[0].substring(0, 5);
   }
 
@@ -632,13 +549,14 @@ export class Activities implements OnInit {
     this.activityToSchedule = {
       id: 0,
       name: '',
+      location: '',
       latitude: 0,
       longitude: 0,
       startTime: '09:00',
-      durationMinutes: 120,
+      duration: 120,
       cost: 0,
       notes: '',
-      dayIdentifier: '',
+      date: '',
       itineraryId: 0
     };
   }
@@ -662,8 +580,7 @@ export class Activities implements OnInit {
       }
     }
 
-    // Save to local storage
-    this.saveActivitiesToLocalStorage();
+    // Data is now persisted via backend API
 
     console.log(`Activity details updated: ${this.activityToSchedule.name}`);
     alert('Activity details updated successfully');
@@ -672,18 +589,18 @@ export class Activities implements OnInit {
   }
 
   // Check for time conflicts
-  hasTimeConflict(activityId: number, date: string, startTime: string, durationMinutes: number): boolean {
+  hasTimeConflict(activityId: number, date: string, startTime: string, duration: number): boolean {
     const newStart = new Date(`${date}T${startTime}`);
-    const newEnd = new Date(newStart.getTime() + (durationMinutes * 60000));
+    const newEnd = new Date(newStart.getTime() + (duration * 60000));
     
     // Check all activities on the same date
     const sameDayActivities = this.activities.filter(activity => 
-      activity.dayIdentifier === date && activity.id !== activityId
+      activity.date === date && activity.id !== activityId
     );
     
     for (const activity of sameDayActivities) {
       const existingStart = new Date(`${date}T${activity.startTime}`);
-      const existingEnd = new Date(existingStart.getTime() + (activity.durationMinutes * 60000));
+      const existingEnd = new Date(existingStart.getTime() + (activity.duration * 60000));
       
       // Check for overlap
       if (newStart < existingEnd && newEnd > existingStart) {
@@ -695,17 +612,17 @@ export class Activities implements OnInit {
   }
 
   // Get conflicting activity details
-  getConflictingActivity(activityId: number, date: string, startTime: string, durationMinutes: number): Activity | null {
+  getConflictingActivity(activityId: number, date: string, startTime: string, duration: number): Activity | null {
     const newStart = new Date(`${date}T${startTime}`);
-    const newEnd = new Date(newStart.getTime() + (durationMinutes * 60000));
+    const newEnd = new Date(newStart.getTime() + (duration * 60000));
     
     const sameDayActivities = this.activities.filter(activity => 
-      activity.dayIdentifier === date && activity.id !== activityId
+      activity.date === date && activity.id !== activityId
     );
     
     for (const activity of sameDayActivities) {
       const existingStart = new Date(`${date}T${activity.startTime}`);
-      const existingEnd = new Date(existingStart.getTime() + (activity.durationMinutes * 60000));
+      const existingEnd = new Date(existingStart.getTime() + (activity.duration * 60000));
       
       if (newStart < existingEnd && newEnd > existingStart) {
         return activity;
@@ -723,8 +640,8 @@ export class Activities implements OnInit {
     }
 
     // Check for time conflicts
-    if (this.hasTimeConflict(this.activityToSchedule.id!, this.scheduleDate, this.scheduleTime, this.activityToSchedule.durationMinutes || 120)) {
-      const conflictingActivity = this.getConflictingActivity(this.activityToSchedule.id!, this.scheduleDate, this.scheduleTime, this.activityToSchedule.durationMinutes || 120);
+    if (this.hasTimeConflict(this.activityToSchedule.id!, this.scheduleDate, this.scheduleTime, this.activityToSchedule.duration || 120)) {
+      const conflictingActivity = this.getConflictingActivity(this.activityToSchedule.id!, this.scheduleDate, this.scheduleTime, this.activityToSchedule.duration || 120);
       const endTime = this.getEndTime(this.activityToSchedule);
       
       alert(`Time conflict detected! This time slot overlaps with "${conflictingActivity?.name}" (${conflictingActivity?.startTime} - ${this.getEndTime(conflictingActivity!)}). Please choose a different time.`);
@@ -733,13 +650,13 @@ export class Activities implements OnInit {
 
     const updatedActivity = {
       ...this.activityToSchedule,
-      dayIdentifier: this.scheduleDate,
+      date: this.scheduleDate,
       startTime: this.scheduleTime
     };
 
     // Calculate end time
     const startTime = new Date(`${this.scheduleDate}T${this.scheduleTime}`);
-    const endTime = new Date(startTime.getTime() + ((this.activityToSchedule.durationMinutes || 120) * 60000));
+    const endTime = new Date(startTime.getTime() + ((this.activityToSchedule.duration || 120) * 60000));
     const endTimeString = endTime.toTimeString().split(' ')[0].substring(0, 5);
 
     // Check if activity is already in scheduled activities
@@ -752,14 +669,13 @@ export class Activities implements OnInit {
       this.activities.push(updatedActivity);
     }
     
-    // Update the activity in buffer activities if it exists there (keep it in buffer but with dayIdentifier)
+    // Remove the activity from buffer activities since it's now scheduled
     const bufferIndex = this.bufferActivities.findIndex(a => a.id === this.activityToSchedule!.id);
     if (bufferIndex !== -1) {
-      this.bufferActivities[bufferIndex] = updatedActivity;
+      this.bufferActivities.splice(bufferIndex, 1);
     }
 
-    // Save to local storage
-    this.saveActivitiesToLocalStorage();
+    // Data is now persisted via backend API
 
     console.log(`Activity scheduled: ${this.activityToSchedule.name} on ${this.scheduleDate} from ${this.scheduleTime} to ${endTimeString}`);
     alert(`Activity scheduled for ${this.scheduleDate} at ${this.scheduleTime} (ends at ${endTimeString})`);
@@ -852,7 +768,7 @@ export class Activities implements OnInit {
       );
       
       // Calculate when previous activity ends
-      const previousEndTime = this.timeToMinutes(previousActivity.startTime) + previousActivity.durationMinutes;
+      const previousEndTime = this.timeToMinutes(previousActivity.startTime) + previousActivity.duration;
       
       // Calculate when current activity should start (with travel time)
       const requiredStartTime = previousEndTime + travelTime;
@@ -922,6 +838,18 @@ export class Activities implements OnInit {
 
   goBack() {
     this.router.navigate(['/itineraries']);
+  }
+
+  async logout() {
+    try {
+      await this.authService.logout();
+      // Redirect to home page after logout
+      this.router.navigate(['/']);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect even if logout fails
+      this.router.navigate(['/']);
+    }
   }
 
   // Leaflet Maps functionality

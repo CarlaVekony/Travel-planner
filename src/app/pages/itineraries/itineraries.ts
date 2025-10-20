@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ItinerariesService, Itinerary } from '../../services/itineraries.service';
-import { LocalStorageService } from '../../services/local-storage.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -23,7 +22,6 @@ export class Itineraries implements OnInit {
   constructor(
     private itinerariesService: ItinerariesService, 
     private router: Router,
-    private localStorageService: LocalStorageService,
     private authService: AuthService
   ) {}
 
@@ -42,20 +40,16 @@ export class Itineraries implements OnInit {
 
     console.log('Loading itineraries for authenticated user:', currentUser.uid);
 
-    // Try backend first for user-specific data
+    // Load itineraries from backend API
     this.itinerariesService.getItineraries().subscribe({
       next: (itineraries) => {
         console.log('Loaded itineraries from backend:', itineraries);
         this.itineraries = itineraries;
-        // Save to user-specific local storage for persistence
-        this.localStorageService.saveItineraries(itineraries, currentUser.uid);
       },
       error: (error) => {
         console.error('Error loading itineraries from backend:', error);
-        // Fallback to user-specific local storage if backend fails
-        const localItineraries = this.localStorageService.getItineraries(currentUser.uid);
-        console.log('Falling back to user-specific local storage:', localItineraries);
-        this.itineraries = localItineraries;
+        // Show error message to user
+        alert('Failed to load itineraries. Please try again.');
       }
     });
   }
@@ -63,44 +57,38 @@ export class Itineraries implements OnInit {
   addItinerary() {
     console.log('addItinerary called with:', this.newItinerary);
     
-    if (!this.newItinerary.title || !this.newItinerary.country || !this.newItinerary.city || !this.newItinerary.startDate || !this.newItinerary.endDate) {
+    if (!this.newItinerary.name || !this.newItinerary.location || !this.newItinerary.startDate || !this.newItinerary.endDate) {
       console.log('Validation failed - missing required fields');
       return;
     }
     
-    // Create itinerary with unique ID
-    const newItinerary: Itinerary = {
-      id: Date.now(),
-      title: this.newItinerary.title!,
-      country: this.newItinerary.country!,
-      city: this.newItinerary.city!,
+    // Create itinerary data for backend
+    const itineraryData: Omit<Itinerary, 'id'> = {
+      name: this.newItinerary.name!,
+      location: this.newItinerary.location!,
       startDate: this.newItinerary.startDate!,
       endDate: this.newItinerary.endDate!,
-      totalCost: this.newItinerary.totalCost || 0,
       notes: this.newItinerary.notes
     };
     
-    console.log('Creating itinerary...');
+    console.log('Creating itinerary with data:', itineraryData);
+    console.log('Current user:', this.authService.getCurrentUser());
+    console.log('Current user ID:', this.authService.getCurrentUserId());
     
-    // Try backend first
-    this.itinerariesService.createItinerary(this.newItinerary as Omit<Itinerary, 'id'>).subscribe({
+    // Create itinerary via backend API
+    this.itinerariesService.createItinerary(itineraryData).subscribe({
       next: (createdItinerary) => {
         console.log('Itinerary created successfully in backend:', createdItinerary);
         this.itineraries.push(createdItinerary);
-        const currentUser = this.authService.getCurrentUser();
-        this.localStorageService.addItinerary(createdItinerary, currentUser?.uid);
         this.newItinerary = {};
         this.showAddForm = false;
       },
       error: (error) => {
         console.error('Error creating itinerary in backend:', error);
-        // Add to local storage and array
-        this.itineraries.push(newItinerary);
-        const currentUser = this.authService.getCurrentUser();
-        this.localStorageService.addItinerary(newItinerary, currentUser?.uid);
-        this.newItinerary = {};
-        this.showAddForm = false;
-        console.log('Added itinerary to user-specific local storage for persistence');
+        console.error('Error details:', error.error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        alert(`Failed to create itinerary. Error: ${error.status} - ${error.message}`);
       }
     });
   }
@@ -111,26 +99,22 @@ export class Itineraries implements OnInit {
       return;
     }
     
-    console.log('Deleting itinerary with ID:', id);
+    console.log('Permanently deleting itinerary:', id);
     
     // Ask for confirmation
-    if (!confirm('Are you sure you want to delete this itinerary?')) {
+    if (!confirm('Are you sure you want to permanently delete this itinerary? This will also delete all associated activities and cannot be undone.')) {
       return;
     }
     
-    // Remove from local storage first
-    const currentUser = this.authService.getCurrentUser();
-    this.localStorageService.deleteItinerary(id, currentUser?.uid);
-    this.itineraries = this.itineraries.filter(i => i.id !== id);
-    
-    // Try backend
     this.itinerariesService.deleteItinerary(id).subscribe({
       next: () => {
-        console.log('Itinerary deleted successfully from backend');
+        console.log('Itinerary deleted successfully');
+        this.itineraries = this.itineraries.filter(i => i.id !== id);
+        alert('Itinerary permanently deleted');
       },
       error: (error) => {
-        console.error('Error deleting itinerary from backend:', error);
-        console.log('Itinerary deleted from local storage');
+        console.error('Error deleting itinerary:', error);
+        alert('Failed to delete itinerary. Please try again.');
       }
     });
   }
@@ -146,28 +130,36 @@ export class Itineraries implements OnInit {
     
     console.log('Saving edited itinerary:', this.editingItinerary);
     
-    // Update local storage
-    const currentUser = this.authService.getCurrentUser();
-    this.localStorageService.updateItinerary(this.editingItinerary, currentUser?.uid);
-    
-    // Update local array
-    const index = this.itineraries.findIndex(i => i.id === this.editingItinerary!.id);
-    if (index !== -1) {
-      this.itineraries[index] = this.editingItinerary;
-    }
-    
-    // Try backend
+    // Update via backend API
     this.itinerariesService.updateItinerary(this.editingItinerary.id!, this.editingItinerary).subscribe({
       next: (result) => {
         console.log('Itinerary updated successfully in backend:', result);
+        console.log('Result type:', typeof result);
+        console.log('Result keys:', Object.keys(result));
+        
+        // Update local array with the result from backend
+        const index = this.itineraries.findIndex(i => i.id === this.editingItinerary!.id);
+        if (index !== -1) {
+          // Create a new array to trigger Angular change detection
+          this.itineraries = [...this.itineraries];
+          this.itineraries[index] = result;
+          console.log('Local array updated with:', result);
+          console.log('Updated itineraries array:', this.itineraries);
+          console.log('Updated itinerary at index', index, ':', this.itineraries[index]);
+        } else {
+          console.error('Could not find itinerary to update in local array');
+          console.log('Available itinerary IDs:', this.itineraries.map(i => i.id));
+          console.log('Looking for ID:', this.editingItinerary?.id);
+        }
+        // Close edit form only after successful update
+        this.cancelEdit();
       },
       error: (error) => {
         console.error('Error updating itinerary in backend:', error);
-        console.log('Itinerary updated in local storage');
+        alert('Failed to update itinerary. Please try again.');
+        // Don't close edit form on error so user can try again
       }
     });
-    
-    this.cancelEdit();
   }
 
   cancelEdit() {
