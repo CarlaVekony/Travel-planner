@@ -41,11 +41,11 @@
                   placeholder="Click to select location on map"
                   readonly>
                 <button type="button" class="btn-map" (click)="openMapModal()">
-                  🗺️ Select on Map
+                  Select on Map
                 </button>
               </div>
               <div class="coordinates-display" *ngIf="newActivity.latitude && newActivity.longitude">
-                <small>📍 {{ newActivity.latitude | number:'1.4-4' }}, {{ newActivity.longitude | number:'1.4-4' }}</small>
+                <small>{{ newActivity.latitude | number:'1.4-4' }}, {{ newActivity.longitude | number:'1.4-4' }}</small>
               </div>
             </div>
           </div>
@@ -117,7 +117,7 @@
       <!-- Buffer Zone -->
       <div class="buffer-zone" *ngIf="showBufferZone">
         <div class="buffer-header">
-          <h3>📋 Activity Buffer</h3>
+          <h3>Activity Buffer</h3>
           <button class="btn-toggle" (click)="toggleBufferZone()">
             {{ showBufferZone ? 'Hide Buffer' : 'Show Buffer' }}
           </button>
@@ -133,11 +133,11 @@
               <div class="activity-meta">
                 <span *ngIf="activity.cost > 0">€{{ activity.cost }}</span>
                 <span>{{ activity.duration }} min</span>
-                <span *ngIf="isActivityPlaced(activity)" class="placed-indicator">✓ Placed</span>
+                <span *ngIf="isActivityPlaced(activity)" class="placed-indicator">Placed</span>
               </div>
               <div class="schedule-info" *ngIf="isActivityPlaced(activity) && activity.date && activity.date.trim() !== ''">
                 <div class="schedule-details">
-                  <span class="schedule-date">📅 {{ formatDate(activity.date) }}</span>
+                  <span class="schedule-date">{{ formatDate(activity.date) }}</span>
                 </div>
               </div>
             </div>
@@ -163,7 +163,7 @@
       <!-- Show Buffer Button when hidden -->
       <div class="show-buffer-section" *ngIf="!showBufferZone">
         <button class="btn-show-buffer" (click)="toggleBufferZone()">
-          📋 Show Activity Buffer
+          Show Activity Buffer
         </button>
       </div>
 
@@ -343,7 +343,7 @@
         <span class="total-cost">Total Cost: €{{ getDayTotalCost(selectedDay) }}</span>
         <span class="activity-count">{{ getDayActivities(selectedDay).length }} activities</span>
         <button class="btn-optimize" (click)="optimizeSchedule()" *ngIf="getDayActivities(selectedDay).length > 1">
-          🚀 Realistic Schedule
+          Realistic Schedule
         </button>
       </div>
     </div>
@@ -354,29 +354,29 @@
           <h4>{{ activity.name }}</h4>
             <div class="activity-actions">
               <button class="btn-icon" (click)="editActivity(activity)" title="Edit">
-                ✏️
+                Edit
               </button>
               <button class="btn-icon btn-buffer" (click)="unscheduleActivity(activity)" title="Move to Buffer">
-                📋
+                Buffer
               </button>
             </div>
         </div>
         
             <div class="activity-details">
               <div class="detail-row">
-                <span class="detail-label">🕐 Time:</span>
+                <span class="detail-label">Time:</span>
                 <span>{{ activity.startTime }} - {{ getEndTime(activity) }} ({{ activity.duration }} min)</span>
               </div>
           <div class="detail-row" *ngIf="activity.cost > 0">
-            <span class="detail-label">💰 Cost:</span>
+            <span class="detail-label">Cost:</span>
             <span>€{{ activity.cost }}</span>
           </div>
           <div class="detail-row" *ngIf="activity.notes">
-            <span class="detail-label">📝 Notes:</span>
+            <span class="detail-label">Notes:</span>
             <span>{{ activity.notes }}</span>
           </div>
           <div class="detail-row" *ngIf="i > 0">
-            <span class="detail-label">🚗 Travel Time:</span>
+            <span class="detail-label">Travel Time:</span>
             <span>{{ getTravelTime(i) }}</span>
           </div>
         </div>

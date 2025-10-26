@@ -1,7 +1,7 @@
 /* Home Container */
 .home-container {
   height: 100vh;
-  background: #1a4d3a;
+  background: linear-gradient(135deg, #1a4d3a 0%, #2d6a4f 50%, #52a87c 100%);
   color: white;
   overflow: hidden;
   display: flex;
@@ -12,7 +12,7 @@
 .hero {
   display: flex;
   align-items: center;
-  height: 50vh;
+  height: 35vh;
   padding: 1rem;
   max-width: 1200px;
   margin: 0 auto 0 0;
@@ -50,12 +50,13 @@
 
 /* Features Section */
 .features {
-  padding: 1rem;
-  background: #1a4d3a;
-  height: 50vh;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #1a4d3a 0%, #2d6a4f 50%, #52a87c 100%);
+  height: 65vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-top: 0.25rem;
 }
 
 /* Features header removed */
@@ -66,31 +67,34 @@
   gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: 0.5rem;
 }
 
 .feature-card {
-  background: rgba(168, 213, 186, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
-  border-radius: 12px;
+  border-radius: 15px;
   text-align: center;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(168, 213, 186, 0.3);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  min-height: 300px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .feature-card:hover {
   transform: translateY(-8px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .feature-image {
   width: 100%;
-  height: 120px;
-  margin-bottom: 1rem;
+  height: 250px;
+  margin-bottom: 0.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -105,15 +109,18 @@
 }
 
 .feature-card h3 {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem;
+  margin-top: 1rem;
+  color: white;
 }
 
 .feature-card p {
-  opacity: 0.8;
+  opacity: 0.9;
   line-height: 1.3;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* CTA Section removed */
@@ -124,9 +131,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  border: 2px solid rgba(168, 213, 186, 0.4);
-  border-radius: 8px;
-  background: rgba(168, 213, 186, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
   text-decoration: none;
   font-size: 0.9rem;
@@ -134,23 +141,24 @@
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn:hover {
-  background: rgba(168, 213, 186, 0.25);
-  border-color: rgba(168, 213, 186, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .btn-primary {
-  background: rgba(168, 213, 186, 0.25);
-  border-color: rgba(168, 213, 186, 0.5);
+  background: linear-gradient(135deg, #52a87c, #2d6a4f);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .btn-outline {
-  background: transparent;
-  border-color: rgba(168, 213, 186, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-large {

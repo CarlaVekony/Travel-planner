@@ -1,1 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Global green background for the entire application */
+html, body {
+  background: linear-gradient(135deg, #1a4d3a 0%, #2d6a4f 50%, #52a87c 100%);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-attachment: fixed;
+}

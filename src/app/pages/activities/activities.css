@@ -2,6 +2,9 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  background: linear-gradient(135deg, #1a4d3a 0%, #2d6a4f 50%, #52a87c 100%);
+  min-height: 100vh;
+  color: white;
 }
 
 .header {
@@ -9,76 +12,100 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .header-left h1 {
-  color: #333;
+  color: white;
   margin: 10px 0 5px 0;
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 .itinerary-info {
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
   font-size: 14px;
 }
 
 .btn-back {
-  background: none;
-  border: none;
-  color: #007bff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
   cursor: pointer;
   font-size: 16px;
-  padding: 8px 0;
+  padding: 8px 16px;
   margin-bottom: 10px;
+  border-radius: 8px;
+  transition: all 0.3s;
 }
 
 .btn-back:hover {
-  text-decoration: underline;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background: linear-gradient(135deg, #52a87c, #2d6a4f);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background: linear-gradient(135deg, #2d6a4f, #1a4d3a);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
-  margin-left: 10px;
+  font-weight: 600;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary:hover {
-  background-color: #545b62;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .add-form {
-  background-color: #f8f9fa;
+  background: rgba(255, 255, 255, 0.1);
   padding: 30px;
-  border-radius: 8px;
+  border-radius: 15px;
   margin-bottom: 30px;
-  border: 1px solid #dee2e6;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .add-form h3 {
   margin-top: 0;
-  color: #333;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
 .form-group {
@@ -98,17 +125,35 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #333;
+  color: white;
+  font-size: 1rem;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
   font-size: 16px;
   box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .form-group textarea {
@@ -127,8 +172,10 @@
 }
 
 .days-navigation h3 {
-  color: #333;
+  color: white;
   margin-bottom: 15px;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .days-list {
@@ -138,25 +185,29 @@
 }
 
 .day-button {
-  background: white;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
   padding: 15px 20px;
   cursor: pointer;
   text-align: center;
   transition: all 0.3s;
   min-width: 120px;
+  color: white;
+  backdrop-filter: blur(10px);
 }
 
 .day-button:hover {
-  border-color: #007bff;
-  background-color: #f8f9fa;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .day-button.active {
-  border-color: #007bff;
-  background-color: #007bff;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #52a87c, #2d6a4f);
   color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .day-button small {
@@ -174,21 +225,25 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .day-header h3 {
   margin: 0;
-  color: #333;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .day-summary {
   display: flex;
   gap: 20px;
   font-size: 14px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .activities-list {
@@ -198,16 +253,20 @@
 }
 
 .activity-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: box-shadow 0.3s;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+  color: white;
 }
 
 .activity-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .activity-header {
@@ -219,8 +278,9 @@
 
 .activity-header h4 {
   margin: 0;
-  color: #333;
-  font-size: 18px;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .activity-actions {
@@ -229,21 +289,27 @@
 }
 
 .btn-icon {
-  background: none;
-  border: none;
-  font-size: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 14px;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  color: white;
+  backdrop-filter: blur(10px);
+  font-weight: 500;
 }
 
 .btn-icon:hover {
-  background-color: #f8f9fa;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 .btn-danger:hover {
-  background-color: #f8d7da;
+  background: rgba(255, 107, 107, 0.2);
+  border-color: rgba(255, 107, 107, 0.5);
 }
 
 .activity-details {
@@ -260,14 +326,18 @@
 
 .detail-label {
   font-weight: 600;
-  color: #333;
+  color: white;
   min-width: 120px;
 }
 
 .empty-day {
   text-align: center;
   padding: 40px 20px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .empty-day p {
@@ -276,11 +346,14 @@
 }
 
 .summary-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(255, 255, 255, 0.15);
   color: white;
   padding: 30px;
-  border-radius: 12px;
+  border-radius: 15px;
   margin-top: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .summary-card h3 {
@@ -393,22 +466,26 @@
 }
 
 .modal-content {
-  background: white;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #1a4d3a 0%, #2d6a4f 50%, #52a87c 100%);
+  border-radius: 15px;
   max-width: 90vw;
   max-height: 90vh;
   overflow: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
 }
 
 /* Buffer Zone Styles */
 .buffer-zone {
-  background: #f8f9fa;
-  border: 2px dashed #dee2e6;
-  border-radius: 12px;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 25px;
   margin: 20px 0;
   min-height: 120px;
+  backdrop-filter: blur(10px);
 }
 
 .buffer-header {
@@ -419,24 +496,29 @@
 }
 
 .buffer-header h3 {
-  color: #495057;
+  color: white;
   margin: 0;
-  font-size: 18px;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .btn-toggle {
-  background: #6c757d;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.3s;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .btn-toggle:hover {
-  background: #5a6268;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 .buffer-content {
@@ -446,21 +528,24 @@
 }
 
 .buffer-activity {
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
   min-width: 250px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  color: white;
 }
 
 .buffer-activity:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .activity-info {
@@ -468,13 +553,14 @@
 }
 
 .activity-info h4 {
-  color: #495057;
+  color: white;
   margin: 0 0 8px 0;
-  font-size: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .activity-info p {
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0 0 8px 0;
   font-size: 14px;
   line-height: 1.4;
@@ -484,7 +570,7 @@
   display: flex;
   gap: 15px;
   font-size: 12px;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .activity-actions {
@@ -495,58 +581,70 @@
 }
 
 .btn-schedule {
-  background: #28a745;
+  background: linear-gradient(135deg, #52a87c, #2d6a4f);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  transition: background-color 0.3s;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .btn-schedule:hover:not(:disabled) {
-  background: #218838;
+  background: linear-gradient(135deg, #2d6a4f, #1a4d3a);
+  transform: translateY(-1px);
 }
 
 .btn-schedule:disabled {
-  background: #6c757d;
+  background: rgba(255, 255, 255, 0.1);
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .btn-edit {
-  background: #ffc107;
-  color: #212529;
-  border: none;
+  background: rgba(255, 193, 7, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 193, 7, 0.4);
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  transition: background-color 0.3s;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .btn-edit:hover {
-  background: #e0a800;
+  background: rgba(255, 193, 7, 0.3);
+  border-color: rgba(255, 193, 7, 0.6);
+  transform: translateY(-1px);
 }
 
 .btn-delete {
-  background: #dc3545;
+  background: rgba(220, 53, 69, 0.2);
   color: white;
-  border: none;
+  border: 1px solid rgba(220, 53, 69, 0.4);
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  transition: background-color 0.3s;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .btn-delete:hover {
-  background: #c82333;
+  background: rgba(220, 53, 69, 0.3);
+  border-color: rgba(220, 53, 69, 0.6);
+  transform: translateY(-1px);
 }
 
 .empty-buffer {
   text-align: center;
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.8);
   padding: 40px 20px;
 }
 
@@ -557,36 +655,45 @@
 
 /* Button styles for scheduled activities */
 .btn-buffer {
-  background: #6c757d;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  transition: background-color 0.3s;
+  font-weight: 500;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .btn-buffer:hover {
-  background: #5a6268;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 /* Placed activities styling */
 .buffer-activity.placed {
-  background: #f8f9fa;
-  border-color: #dee2e6;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
   opacity: 0.7;
 }
 
 .buffer-activity.placed .activity-info h4 {
-  color: #6c757d;
+  color: rgba(255, 255, 255, 0.6);
   text-decoration: line-through;
 }
 
 .placed-indicator {
-  color: #28a745;
-  font-weight: bold;
-  font-size: 12px;
+  color: #ffffff;
+  background: rgba(82, 168, 124, 0.3);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 11px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(82, 168, 124, 0.5);
 }
 
 .btn-schedule:disabled {
@@ -601,30 +708,36 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .modal-header h3 {
   margin: 0;
-  color: #495057;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .btn-close {
-  background: none;
-  border: none;
-  font-size: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 20px;
   cursor: pointer;
-  color: #6c757d;
+  color: white;
   padding: 0;
   width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
 }
 
 .btn-close:hover {
-  color: #dc3545;
+  background: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.5);
+  color: #ff6b6b;
 }
 
 .modal-body {
@@ -636,19 +749,46 @@
   gap: 10px;
   justify-content: flex-end;
   padding: 20px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .time-preview {
-  background: #e9ecef;
+  background: rgba(255, 255, 255, 0.1);
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-top: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .time-preview p {
   margin: 0;
-  color: #495057;
+  color: white;
+}
+
+/* Modal form elements styling */
+.modal-content .form-group label {
+  color: white;
+  font-weight: 600;
+}
+
+.modal-content .form-group input,
+.modal-content .form-group textarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.modal-content .form-group input:focus,
+.modal-content .form-group textarea:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.modal-content .form-group input::placeholder,
+.modal-content .form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 @media (max-width: 768px) {
@@ -685,6 +825,8 @@
   max-height: 90vh;
   width: 800px;
   height: 600px;
+  background: linear-gradient(135deg, #1a4d3a 0%, #2d6a4f 50%, #52a87c 100%);
+  color: white;
 }
 
 .map-container {
@@ -702,9 +844,23 @@
 .search-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   font-size: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .location-input {
@@ -716,51 +872,71 @@
 .location-input input {
   flex: 1;
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   font-size: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.location-input input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.location-input input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
 }
 
 .btn-map {
-  background-color: #28a745;
+  background: linear-gradient(135deg, #52a87c, #2d6a4f);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 12px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
   white-space: nowrap;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
 .btn-map:hover {
-  background-color: #218838;
+  background: linear-gradient(135deg, #2d6a4f, #1a4d3a);
+  transform: translateY(-1px);
 }
 
 .coordinates-display {
   margin-top: 8px;
   padding: 8px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  border-left: 3px solid #007bff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #52a87c;
+  color: white;
 }
 
 .selected-location {
   margin-top: 15px;
   padding: 15px;
-  background-color: #f8f9fa;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .selected-location h4 {
   margin: 0 0 10px 0;
-  color: #333;
+  color: white;
+  font-weight: 600;
 }
 
 .selected-location p {
   margin: 5px 0;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Map Loading Styles */
@@ -775,17 +951,19 @@
   transform: translate(-50%, -50%);
   text-align: center;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(26, 77, 58, 0.95);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #52a87c;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 10px;
@@ -798,7 +976,7 @@
 
 .map-loading p {
   margin: 0;
-  color: #666;
+  color: white;
   font-size: 14px;
 }
 
@@ -811,21 +989,24 @@
 }
 
 .btn-optimize {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #52a87c, #2d6a4f);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .btn-optimize:hover {
+  background: linear-gradient(135deg, #2d6a4f, #1a4d3a);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .btn-optimize:active {
@@ -835,10 +1016,11 @@
 /* Schedule Info Styles */
 .schedule-info {
   margin-top: 10px;
-  padding: 8px 12px;
-  background: rgba(40, 167, 69, 0.1);
-  border-radius: 6px;
-  border-left: 3px solid #28a745;
+  padding: 10px 14px;
+  background: rgba(82, 168, 124, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(82, 168, 124, 0.4);
+  backdrop-filter: blur(10px);
 }
 
 .schedule-details {
@@ -848,55 +1030,61 @@
 }
 
 .schedule-date {
-  font-size: 13px;
-  color: #28a745;
-  font-weight: 500;
+  font-size: 14px;
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .schedule-time {
   font-size: 12px;
-  color: #6c757d;
-  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 }
 
 /* Enhanced buffer activity styling for scheduled items */
 .buffer-activity.placed .schedule-info {
-  background: rgba(40, 167, 69, 0.15);
-  border-left-color: #28a745;
+  background: rgba(82, 168, 124, 0.25);
+  border-color: rgba(82, 168, 124, 0.5);
 }
 
 .buffer-activity.placed .schedule-date {
-  color: #28a745;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .buffer-activity.placed .schedule-time {
-  color: #495057;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Show Buffer Button Styles */
 .show-buffer-section {
   text-align: center;
   margin: 20px 0;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 2px dashed #dee2e6;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .btn-show-buffer {
-  background: #6c757d;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-show-buffer:hover {
-  background: #5a6268;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }

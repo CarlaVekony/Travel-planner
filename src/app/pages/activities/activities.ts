@@ -199,24 +199,24 @@ export class Activities implements OnInit {
     console.log('Unique activities after deduplication:', uniqueActivities);
     
     // Separate into scheduled and buffer
-    // Scheduled activities have real dates (not the BUFFER_ACTIVITY marker)
+    // Scheduled activities have real dates (not the buffer date marker)
     this.activities = uniqueActivities.filter(activity => 
       activity.date && 
       activity.date.trim() !== '' && 
-      activity.date !== 'BUFFER_ACTIVITY'
+      activity.date !== '9999-12-31'
     );
     
-    // Buffer activities are those with the BUFFER_ACTIVITY marker
-    this.bufferActivities = uniqueActivities.filter(activity => 
-      activity.date === 'BUFFER_ACTIVITY'
-    );
+    // Buffer activities include ALL activities (both unscheduled and scheduled)
+    // This way scheduled activities appear in buffer but grayed out
+    this.bufferActivities = uniqueActivities;
     
     console.log('Scheduled activities:', this.activities);
     console.log('Buffer activities (all):', this.bufferActivities);
     
-    // Debug each activity's date
+    // Debug each activity's date and placement status
     uniqueActivities.forEach(activity => {
-      console.log(`Activity "${activity.name}" - date: "${activity.date}"`);
+      const isPlaced = this.isActivityPlaced(activity);
+      console.log(`Activity "${activity.name}" - date: "${activity.date}" - isPlaced: ${isPlaced}`);
     });
   }
 
@@ -245,9 +245,9 @@ export class Activities implements OnInit {
       cost: this.newActivity.cost || 0.0,
       notes: this.newActivity.notes || '',
       itineraryId: this.itineraryId,
-      // For buffer activities, use a special date marker, otherwise use the provided date
+      // For buffer activities, use a special date (year 9999), otherwise use the provided date
       date: isBufferActivity 
-        ? 'BUFFER_ACTIVITY' // Special marker for buffer activities
+        ? '9999-12-31' // Special date for buffer activities (year 9999)
         : this.newActivity.date
     };
     
@@ -264,6 +264,12 @@ export class Activities implements OnInit {
           console.log('Added to buffer:', createdActivity);
           alert('Activity added to buffer!');
         } else {
+          // Check if the selected date is within the itinerary's date range
+          if (!this.isDateWithinItineraryRange(this.newActivity.date!)) {
+            alert(`The selected date (${this.newActivity.date}) is outside the itinerary's date range (${this.itinerary?.startDate} to ${this.itinerary?.endDate}). Please select a date within the itinerary period.`);
+            return;
+          }
+
           // Check for time conflicts before adding to schedule
           if (this.hasTimeConflict(0, this.newActivity.date!, this.newActivity.startTime!, this.newActivity.duration || 120)) {
             const conflictingActivity = this.getConflictingActivity(0, this.newActivity.date!, this.newActivity.startTime!, this.newActivity.duration || 120);
@@ -271,10 +277,14 @@ export class Activities implements OnInit {
             return;
           }
           
-          // Add to scheduled activities only (not to buffer)
+          // Add to scheduled activities
           this.activities.push(createdActivity);
           
+          // Also add to buffer activities (so it appears grayed out in buffer)
+          this.bufferActivities.push(createdActivity);
+          
           console.log('Added to schedule:', createdActivity);
+          console.log('Also added to buffer (will appear grayed out)');
           alert('Activity added to schedule!');
         }
         
@@ -305,10 +315,10 @@ export class Activities implements OnInit {
       // Remove from scheduled
       this.activities = this.activities.filter(a => a.id !== id);
       
-      // Set the date to BUFFER_ACTIVITY marker to make it a buffer activity
-      const bufferActivity = { 
-        ...activityToMove, 
-        date: 'BUFFER_ACTIVITY', 
+      // Set the date to buffer date marker to make it a buffer activity
+      const bufferActivity = {
+        ...activityToMove,
+        date: '9999-12-31',
         startTime: '09:00' // Reset to default time
       };
       
@@ -490,10 +500,10 @@ export class Activities implements OnInit {
     // Remove from scheduled activities
     this.activities = this.activities.filter(a => a.id !== activity.id);
     
-    // Set the date to BUFFER_ACTIVITY marker to make it a buffer activity
-    const bufferActivity = { 
-      ...activity, 
-      date: 'BUFFER_ACTIVITY', 
+    // Set the date to buffer date marker to make it a buffer activity
+    const bufferActivity = {
+      ...activity,
+      date: '9999-12-31',
       startTime: '09:00' // Reset to default time
     };
     
@@ -510,10 +520,24 @@ export class Activities implements OnInit {
     // Remove from placed set (make it available again)
     this.placedActivityIds.delete(activity.id!);
     
-    // Data is now persisted via backend API
-    
-    console.log('Activity moved back to buffer and made available again');
-    alert('Activity moved back to buffer and is now available for scheduling');
+    // Update the activity in the database
+    this.activitiesService.updateActivity(activity.id!, bufferActivity).subscribe({
+      next: (result) => {
+        console.log('Activity updated in database (moved to buffer):', result);
+        console.log('Activity moved back to buffer and made available again');
+        alert('Activity moved back to buffer and is now available for scheduling');
+      },
+      error: (error) => {
+        console.error('Error updating activity in database:', error);
+        alert('Failed to save activity changes. Please try again.');
+        // Revert the frontend changes on error
+        this.activities.push(activity);
+        const bufferIndex = this.bufferActivities.findIndex(a => a.id === activity.id);
+        if (bufferIndex !== -1) {
+          this.bufferActivities.splice(bufferIndex, 1);
+        }
+      }
+    });
   }
 
   // Toggle buffer zone visibility
@@ -523,9 +547,34 @@ export class Activities implements OnInit {
 
   // Check if activity is placed
   isActivityPlaced(activity: Activity): boolean {
-    // An activity is placed if it's in the scheduled activities array (has a real date)
-    const isInScheduled = this.activities.some(a => a.id === activity.id);
-    return isInScheduled;
+    // An activity is placed if it has a real date (not the buffer date marker)
+    const isPlaced = !!(activity.date && 
+                       activity.date.trim() !== '' && 
+                       activity.date !== '9999-12-31');
+    console.log(`Activity "${activity.name}" - date: "${activity.date}" - isPlaced: ${isPlaced}`);
+    return isPlaced;
+  }
+
+  // Check if a date is within the itinerary's date range
+  isDateWithinItineraryRange(date: string): boolean {
+    if (!this.itinerary) {
+      console.log('No itinerary available for date validation');
+      return false;
+    }
+
+    const selectedDate = new Date(date);
+    const startDate = new Date(this.itinerary.startDate);
+    const endDate = new Date(this.itinerary.endDate);
+
+    // Set time to midnight for accurate date comparison
+    selectedDate.setHours(0, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    const isWithinRange = selectedDate >= startDate && selectedDate <= endDate;
+    console.log(`Date validation: ${date} is within range (${this.itinerary.startDate} to ${this.itinerary.endDate}): ${isWithinRange}`);
+    
+    return isWithinRange;
   }
 
   // Calculate end time for an activity
@@ -639,6 +688,12 @@ export class Activities implements OnInit {
       return;
     }
 
+    // Check if the selected date is within the itinerary's date range
+    if (!this.isDateWithinItineraryRange(this.scheduleDate)) {
+      alert(`The selected date (${this.scheduleDate}) is outside the itinerary's date range (${this.itinerary?.startDate} to ${this.itinerary?.endDate}). Please select a date within the itinerary period.`);
+      return;
+    }
+
     // Check for time conflicts
     if (this.hasTimeConflict(this.activityToSchedule.id!, this.scheduleDate, this.scheduleTime, this.activityToSchedule.duration || 120)) {
       const conflictingActivity = this.getConflictingActivity(this.activityToSchedule.id!, this.scheduleDate, this.scheduleTime, this.activityToSchedule.duration || 120);
@@ -669,18 +724,36 @@ export class Activities implements OnInit {
       this.activities.push(updatedActivity);
     }
     
-    // Remove the activity from buffer activities since it's now scheduled
+    // Update the activity in buffer activities (keep it there but with new date)
     const bufferIndex = this.bufferActivities.findIndex(a => a.id === this.activityToSchedule!.id);
     if (bufferIndex !== -1) {
-      this.bufferActivities.splice(bufferIndex, 1);
+      this.bufferActivities[bufferIndex] = updatedActivity;
     }
 
-    // Data is now persisted via backend API
-
-    console.log(`Activity scheduled: ${this.activityToSchedule.name} on ${this.scheduleDate} from ${this.scheduleTime} to ${endTimeString}`);
-    alert(`Activity scheduled for ${this.scheduleDate} at ${this.scheduleTime} (ends at ${endTimeString})`);
-    
-    this.closeScheduleModal();
+    // Update the activity in the database
+    this.activitiesService.updateActivity(this.activityToSchedule!.id!, updatedActivity).subscribe({
+      next: (result) => {
+        console.log('Activity updated in database:', result);
+        console.log(`Activity scheduled: ${this.activityToSchedule.name} on ${this.scheduleDate} from ${this.scheduleTime} to ${endTimeString}`);
+        alert(`Activity scheduled for ${this.scheduleDate} at ${this.scheduleTime} (ends at ${endTimeString})`);
+        this.closeScheduleModal();
+      },
+      error: (error) => {
+        console.error('Error updating activity in database:', error);
+        alert('Failed to save activity schedule. Please try again.');
+        // Revert the frontend changes on error
+        this.activities = this.activities.filter(a => a.id !== this.activityToSchedule!.id);
+        const originalBufferActivity = {
+          ...this.activityToSchedule,
+          date: '9999-12-31',
+          startTime: '09:00'
+        };
+        const bufferIndex = this.bufferActivities.findIndex(a => a.id === this.activityToSchedule!.id);
+        if (bufferIndex !== -1) {
+          this.bufferActivities[bufferIndex] = originalBufferActivity;
+        }
+      }
+    });
   }
 
   // Toggle add form visibility

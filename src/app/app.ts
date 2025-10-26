@@ -19,23 +19,30 @@ export class App implements OnInit {
   ngOnInit() {
     console.log('App component initialized');
     
-    // Initialize Firebase Auth in browser
-    this.authService.initializeInBrowser();
-    
-    // Wait a moment for Firebase to initialize, then debug
-    setTimeout(() => {
-      this.authService.debugAuthState();
-    }, 1000);
-    
-    // Subscribe to auth state changes and handle routing
-    this.authService.user$.subscribe(user => {
-      console.log('App component - Auth state changed:', user ? 'User logged in' : 'User logged out');
+    // Only initialize Firebase Auth in browser environment
+    if (typeof window !== 'undefined') {
+      // Initialize Firebase Auth in browser
+      this.authService.initializeInBrowser();
       
-      // If user is authenticated and we're on the home page, redirect to itineraries
-      if (user && window.location.pathname === '/') {
-        console.log('User is authenticated, redirecting to itineraries');
-        this.router.navigate(['/itineraries']);
-      }
-    });
+      // Wait a moment for Firebase to initialize, then debug
+      setTimeout(() => {
+        this.authService.debugAuthState();
+      }, 1000);
+    } else {
+      console.log('App: Not in browser environment, skipping Firebase initialization');
+    }
+    
+    // Subscribe to auth state changes and handle routing (only in browser)
+    if (typeof window !== 'undefined') {
+      this.authService.user$.subscribe(user => {
+        console.log('App component - Auth state changed:', user ? 'User logged in' : 'User logged out');
+        
+        // If user is authenticated and we're on the home page, redirect to itineraries
+        if (user && window.location.pathname === '/') {
+          console.log('User is authenticated, redirecting to itineraries');
+          this.router.navigate(['/itineraries']);
+        }
+      });
+    }
   }
 }

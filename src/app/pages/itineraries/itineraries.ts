@@ -38,16 +38,61 @@ export class Itineraries implements OnInit {
       return;
     }
 
+    console.log('=== LOADING ITINERARIES DEBUG ===');
     console.log('Loading itineraries for authenticated user:', currentUser.uid);
+    console.log('Firebase user details:', currentUser);
+    
+    // Check for any cached data in localStorage
+    console.log('Checking for cached data...');
+    
+    // Check all possible localStorage keys that might contain itinerary data
+    const possibleKeys = [
+      'travel_planner_itineraries_' + currentUser.uid,
+      'travel_planner_itineraries_default',
+      'itineraries',
+      'travel_planner_itineraries',
+      'vacation_planner_itineraries',
+      'vacation_planner_itineraries_' + currentUser.uid
+    ];
+    
+    let foundCachedData = false;
+    possibleKeys.forEach(key => {
+      const cachedData = localStorage.getItem(key);
+      if (cachedData) {
+        console.log(`Found cached data in key "${key}":`, JSON.parse(cachedData));
+        foundCachedData = true;
+      }
+    });
+    
+    if (foundCachedData) {
+      console.log('Clearing all cached data to prevent phantom data issues...');
+      // Clear all possible cached data
+      possibleKeys.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      console.log('All cached data cleared');
+    } else {
+      console.log('No cached itineraries found in localStorage');
+    }
+    
+    // Also check for any other localStorage keys that might contain data
+    console.log('All localStorage keys:', Object.keys(localStorage));
 
     // Load itineraries from backend API
     this.itinerariesService.getItineraries().subscribe({
       next: (itineraries) => {
+        console.log('=== ITINERARIES LOADED SUCCESSFULLY ===');
         console.log('Loaded itineraries from backend:', itineraries);
+        console.log('Number of itineraries:', itineraries.length);
+        console.log('Itinerary details:', itineraries.map(i => ({ id: i.id, name: i.name, userId: i.userId })));
         this.itineraries = itineraries;
       },
       error: (error) => {
+        console.error('=== ERROR LOADING ITINERARIES ===');
         console.error('Error loading itineraries from backend:', error);
+        console.error('Error details:', error.error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
         // Show error message to user
         alert('Failed to load itineraries. Please try again.');
       }
@@ -99,12 +144,21 @@ export class Itineraries implements OnInit {
       return;
     }
     
-    console.log('Permanently deleting itinerary:', id);
+    console.log('=== ITINERARY DELETION DEBUG ===');
+    console.log('Attempting to delete itinerary with ID:', id);
+    console.log('Current user:', this.authService.getCurrentUser());
+    console.log('Current user ID:', this.authService.getCurrentUserId());
+    console.log('Available itineraries:', this.itineraries);
     
     // Ask for confirmation
     if (!confirm('Are you sure you want to permanently delete this itinerary? This will also delete all associated activities and cannot be undone.')) {
       return;
     }
+    
+    console.log('=== DELETION REQUEST DEBUG ===');
+    console.log('Attempting to delete itinerary with ID:', id);
+    console.log('Current user from auth service:', this.authService.getCurrentUser());
+    console.log('Current user ID from auth service:', this.authService.getCurrentUserId());
     
     this.itinerariesService.deleteItinerary(id).subscribe({
       next: () => {
@@ -113,8 +167,23 @@ export class Itineraries implements OnInit {
         alert('Itinerary permanently deleted');
       },
       error: (error) => {
-        console.error('Error deleting itinerary:', error);
-        alert('Failed to delete itinerary. Please try again.');
+        console.error('=== ITINERARY DELETION ERROR ===');
+        console.error('Error object:', error);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.error);
+        console.error('Error URL:', error.url);
+        console.error('Full error response:', JSON.stringify(error, null, 2));
+        
+        // Handle specific error cases
+        if (error.status === 400) {
+          console.log('Itinerary not found in backend database - removing from frontend list');
+          // Remove the itinerary from the frontend list since it doesn't exist in backend
+          this.itineraries = this.itineraries.filter(i => i.id !== id);
+          alert('Itinerary was not found in the database and has been removed from the list.');
+        } else {
+          alert(`Failed to delete itinerary. Error: ${error.status} - ${error.message}. Check console for details.`);
+        }
       }
     });
   }

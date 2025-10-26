@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, switchMap, tap } from 'rxjs';
 import { AuthService } from './auth.service';
 import { UserService } from './user.service';
 
@@ -22,6 +22,7 @@ export class ItinerariesService {
 
   getItineraries(): Observable<Itinerary[]> {
     const firebaseUid = this.authService.getCurrentUserId();
+    console.log('=== ITINERARIES SERVICE DEBUG ===');
     console.log('Getting itineraries for Firebase UID:', firebaseUid);
     if (!firebaseUid) {
       throw new Error('User not authenticated');
@@ -31,7 +32,13 @@ export class ItinerariesService {
     return this.userService.getCurrentUser().pipe(
       switchMap(user => {
         console.log('Backend user found:', user);
-        return this.http.get<Itinerary[]>(`${this.baseUrl}?userId=${user.id}`);
+        const url = `${this.baseUrl}?userId=${user.id}`;
+        console.log('Making request to:', url);
+        return this.http.get<Itinerary[]>(url);
+      }),
+      tap(itineraries => {
+        console.log('Raw response from backend:', itineraries);
+        console.log('Number of itineraries received:', itineraries.length);
       })
     );
   }
@@ -63,7 +70,11 @@ export class ItinerariesService {
   }
 
   deleteItinerary(id: number): Observable<void> {
+    console.log('=== DELETE ITINERARY SERVICE DEBUG ===');
     console.log('Sending delete request to:', `${this.baseUrl}/${id}`);
+    console.log('Current Firebase UID:', this.authService.getCurrentUserId());
+    console.log('Current user:', this.authService.getCurrentUser());
+    
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

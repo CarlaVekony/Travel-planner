@@ -2,10 +2,12 @@
   max-width: 400px;
   margin: 5rem auto;
   padding: 3rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1a4d3a;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   color: white;
+  border: 1px solid rgba(168, 213, 186, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .register-container h2 {
@@ -32,10 +34,10 @@ input[type="email"],
 input[type="password"] {
   width: 100%;
   padding: 1rem;
-  border: 2px solid rgba(255,255,255,0.2);
+  border: 2px solid rgba(168, 213, 186, 0.3);
   border-radius: 8px;
   font-size: 1rem;
-  background: rgba(255,255,255,0.1);
+  background: rgba(168, 213, 186, 0.1);
   color: white;
   backdrop-filter: blur(10px);
   transition: all 0.3s;
@@ -45,8 +47,8 @@ input[type="password"] {
 input[type="email"]:focus,
 input[type="password"]:focus {
   outline: none;
-  border-color: rgba(255,255,255,0.5);
-  background: rgba(255,255,255,0.2);
+  border-color: rgba(168, 213, 186, 0.6);
+  background: rgba(168, 213, 186, 0.2);
 }
 
 input::placeholder {
@@ -56,9 +58,9 @@ input::placeholder {
 button[type="submit"] {
   width: 100%;
   padding: 1rem;
-  background: rgba(255,255,255,0.2);
+  background: rgba(168, 213, 186, 0.2);
   color: white;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(168, 213, 186, 0.4);
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
@@ -69,13 +71,13 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-  background: rgba(255,255,255,0.3);
-  border-color: rgba(255,255,255,0.5);
+  background: rgba(168, 213, 186, 0.3);
+  border-color: rgba(168, 213, 186, 0.6);
   transform: translateY(-2px);
 }
 
 button[type="submit"]:disabled {
-  background: rgba(255,255,255,0.1);
+  background: rgba(168, 213, 186, 0.1);
   cursor: not-allowed;
   transform: none;
 }

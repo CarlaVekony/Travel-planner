@@ -1,10 +1,16 @@
 <div class="login-container">
   <h2>Login</h2>
   <form (ngSubmit)="login()">
-    <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required>
-    <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required>
+    <div class="form-group">
+      <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required>
+    </div>
+    <div class="form-group">
+      <input type="password" [(ngModel)]="password" name="password" placeholder="Password" required>
+    </div>
     <button type="submit">Login</button>
-    <p *ngIf="errorMessage">{{ errorMessage }}</p>
+    <div *ngIf="errorMessage" class="login-error">{{ errorMessage }}</div>
   </form>
-  <button (click)="goToRegister()">Register</button>
+  <div class="register-link">
+    <button type="button" (click)="goToRegister()">Register</button>
+  </div>
 </div>
